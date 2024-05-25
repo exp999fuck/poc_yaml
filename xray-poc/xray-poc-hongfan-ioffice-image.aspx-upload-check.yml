@@ -1,0 +1,38 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-hongfan-ioffice-image.aspx-upload
+transport: http
+set:
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/prg/set/HtmlEdit/plugins/image.aspx
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 200 
+
+    output:
+      search: |-
+        "ASP.NET_SessionId=(?<token>\\w*)".bsubmatch(response.raw_header)
+      token: search["token"]
+
+expression: r0()  

